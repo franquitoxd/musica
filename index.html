@@ -7,6 +7,8 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         :root {
             --fondo-app: #121212;
@@ -27,10 +29,9 @@
             color: var(--texto-principal);
             margin: 0;
             padding: 0;
-            padding-bottom: 80px;
+            padding-bottom: 120px; /* Mas espacio abajo por la doble barra de herramientas */
         }
 
-        /* Cabecera principal */
         #cabecera-app {
             background-color: var(--fondo-tarjeta);
             padding: 15px;
@@ -42,98 +43,29 @@
             z-index: 90;
         }
 
-        #btn-hamburguesa {
-            background: none;
-            border: none;
-            color: var(--texto-principal);
-            font-size: 28px;
-            padding: 0 15px 0 0;
-            margin: 0;
-            width: auto;
-            cursor: pointer;
-        }
+        #btn-hamburguesa { background: none; border: none; color: var(--texto-principal); font-size: 28px; padding: 0 15px 0 0; cursor: pointer; }
+        .btn-casita { background: none; border: none; font-size: 24px; cursor: pointer; margin-right: 15px; padding: 0; }
+        #titulo-cabecera { font-size: 20px; font-weight: bold; color: var(--texto-principal); }
 
-        .btn-casita {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            margin-right: 15px;
-            padding: 0;
-            width: auto;
-        }
-
-        #titulo-cabecera {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--texto-principal);
-        }
-
-        /* Menu lateral pantalla completa */
         #menu-lateral {
-            position: fixed;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background-color: var(--fondo-app);
-            z-index: 2000;
-            transition: left 0.3s ease;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            position: fixed; top: 0; left: -100%; width: 100%; height: 100%;
+            background-color: var(--fondo-app); z-index: 2000; transition: left 0.3s ease;
+            padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
         }
-
-        #menu-lateral.abierto {
-            left: 0;
-        }
-
-        #menu-lateral .nav-btn {
-            font-size: 20px;
-            padding: 20px;
-            margin-bottom: 15px;
-            width: 90%;
-            background-color: var(--fondo-tarjeta);
-            border: 1px solid var(--borde);
-            border-radius: 10px;
-            color: var(--texto-principal);
-            text-align: center;
-        }
-
-        #menu-lateral .nav-btn.activa {
-            background-color: var(--color-primario);
-            color: white;
-            border-color: var(--color-primario);
-        }
-
-        .btn-cerrar-menu {
-            width: auto;
-            align-self: flex-end;
-            background: none;
-            color: var(--color-peligro);
-            font-size: 18px;
-            padding: 10px;
-            margin-bottom: 30px;
-        }
+        #menu-lateral.abierto { left: 0; }
+        #menu-lateral .nav-btn { font-size: 20px; padding: 20px; margin-bottom: 15px; width: 90%; background-color: var(--fondo-tarjeta); border: 1px solid var(--borde); border-radius: 10px; color: var(--texto-principal); text-align: center; }
+        #menu-lateral .nav-btn.activa { background-color: var(--color-primario); color: white; border-color: var(--color-primario); }
+        .btn-cerrar-menu { width: auto; align-self: flex-end; background: none; color: var(--color-peligro); font-size: 18px; padding: 10px; margin-bottom: 30px; }
 
         .contenedor { max-width: 700px; margin: 15px auto; padding: 0 15px; }
         .seccion { display: none; animation: fadeIn 0.3s ease; }
         .seccion.activa { display: block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         h1, h2, h3 { color: var(--texto-principal); margin-top: 0; }
         
-        button {
-            border: none; border-radius: 8px; padding: 12px; font-size: 16px;
-            font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px;
-            background-color: var(--fondo-input); color: var(--texto-principal);
-        }
+        button { border: none; border-radius: 8px; padding: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px; background-color: var(--fondo-input); color: var(--texto-principal); }
         .btn-accion { background-color: var(--color-primario); color: white; }
         .btn-guardar { background-color: var(--color-acorde); color: #000; }
         .btn-peligro { background-color: transparent; border: 1px solid var(--color-peligro); color: var(--color-peligro); }
@@ -141,25 +73,15 @@
         .btn-mover { background-color: var(--fondo-app); padding: 10px; font-size: 18px; width: auto; margin: 0;}
         .btn-mover-setlist { background: none; border: none; font-size: 20px; padding: 0; margin: 0 5px; cursor: pointer;}
 
-        input, select, textarea {
-            width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px;
-            font-size: 16px; box-sizing: border-box; background-color: var(--fondo-input);
-            color: var(--texto-principal); margin-bottom: 15px;
-        }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; font-size: 16px; box-sizing: border-box; background-color: var(--fondo-input); color: var(--texto-principal); margin-bottom: 15px; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-primario); }
 
         .contenedor-etiquetas { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
-        .etiqueta {
-            background-color: var(--fondo-input); padding: 5px 10px; border-radius: 15px;
-            font-size: 12px; border: 1px solid var(--borde); cursor: pointer;
-        }
+        .etiqueta { background-color: var(--fondo-input); padding: 5px 10px; border-radius: 15px; font-size: 12px; border: 1px solid var(--borde); cursor: pointer; }
         .etiqueta.seleccionada { background-color: var(--color-primario); color: white; border-color: var(--color-primario); }
         .etiqueta-mostrar { background-color: var(--borde); color: var(--texto-secundario); padding: 3px 8px; border-radius: 10px; font-size: 10px; margin-right: 5px;}
 
-        .tarjeta-cancion {
-            background-color: var(--fondo-tarjeta); border: 1px solid var(--borde);
-            padding: 15px; border-radius: 10px; margin-bottom: 10px;
-        }
+        .tarjeta-cancion { background-color: var(--fondo-tarjeta); border: 1px solid var(--borde); padding: 15px; border-radius: 10px; margin-bottom: 10px; }
         .tarjeta-cancion h3 { margin: 0 0 5px 0; }
         .botones-lista { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
         
@@ -170,11 +92,7 @@
         .fila-armar input { margin-bottom: 0; flex-grow: 1; }
         .controles-mover-setlist { display: flex; flex-direction: column; }
 
-        .fullscreen {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--fondo-app); z-index: 1000; padding: 20px;
-            overflow-y: auto; display: flex; flex-direction: column;
-        }
+        .fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--fondo-app); z-index: 1000; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
         .visor-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--borde); padding-bottom: 10px; }
         .visor-header h1 { color: var(--color-primario); font-size: 28px; margin-bottom: 5px; }
         .visor-bloque { margin-bottom: 25px; }
@@ -184,45 +102,30 @@
         
         .barra-herramientas {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--fondo-tarjeta);
-            padding: 10px; display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; display: flex; justify-content: space-around; align-items: center;
             border-top: 1px solid var(--borde); z-index: 1010; flex-wrap: wrap; gap: 5px;
         }
-        .herramienta-grupo { display: flex; gap: 5px; align-items: center; }
+        .herramienta-grupo { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
 
-        .aguja-afinador {
-            width: 10px; height: 100px; background-color: var(--color-peligro); margin: 0 auto;
-            transform-origin: bottom center; transition: transform 0.1s; border-radius: 5px;
-        }
+        .aguja-afinador { width: 10px; height: 100px; background-color: var(--color-peligro); margin: 0 auto; transform-origin: bottom center; transition: transform 0.1s; border-radius: 5px; }
         .centro-afinador { width: 20px; height: 20px; background-color: var(--color-acorde); border-radius: 50%; margin: -10px auto 0 auto; z-index: 2; position: relative;}
         .nota-afinador { text-align: center; font-size: 60px; font-weight: bold; margin: 20px 0; color: var(--color-primario);}
         
-        /* IMPRESION LIMPIA */
+        /* Modal QR */
+        #modal-qr { display: none; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.9); z-index: 3000; }
+        #contenedor-codigo-qr img { margin: 0 auto; border: 10px solid white; border-radius: 5px;}
+        
         @media print {
             body { background-color: white !important; }
             body * { visibility: hidden; } 
-            
             #visor-canciones, #visor-canciones * { visibility: visible; }
-            
-            #visor-canciones {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                padding: 0 !important;
-                margin: 0 !important;
-                background-color: white !important;
-                color: black !important;
-                display: block !important;
-            }
-
+            #visor-canciones { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; margin: 0 !important; background-color: white !important; color: black !important; display: block !important; }
             .visor-acordes { color: black !important; text-shadow: none !important; font-weight: bold !important; font-size: 16pt !important;}
             .visor-letra { color: black !important; font-size: 14pt !important;}
             .visor-tipo { color: #555 !important; font-size: 10pt !important; font-weight: bold;}
-            
             .visor-header { border-bottom: 2px solid black !important; margin-bottom: 20px !important; text-align: left !important;}
             #visor-titulo { color: black !important; font-size: 26pt !important; margin-bottom: 0 !important; }
             #visor-info-extra { color: #333 !important; font-size: 14pt !important; font-weight: bold;}
-            
             .barra-herramientas, .no-imprimir, #indicador-numero { display: none !important; }
         }
     </style>
@@ -273,6 +176,9 @@
             
             <label>Artista (Opcional)</label>
             <input type="text" id="artista-cancion">
+
+            <label>Velocidad Metronomo (BPM)</label>
+            <input type="number" id="bpm-cancion" placeholder="Ejemplo: 120 (Dejar vacio si no usas)">
             
             <label>Etiquetas (Selecciona varias)</label>
             <div class="contenedor-etiquetas" id="selector-etiquetas">
@@ -332,6 +238,16 @@
 
     </div>
 
+    <div id="modal-qr" class="seccion fullscreen">
+        <div style="background-color: white; border-radius: 15px; padding: 20px; text-align: center; color: black; max-width: 300px; margin: auto;">
+            <h2 style="color: black; margin-bottom: 10px;">Compartir Cancion</h2>
+            <p style="font-size: 14px; margin-bottom: 20px;">Que tu amigo abra la camara y escanee este codigo.</p>
+            <div id="contenedor-codigo-qr" style="margin: 0 auto; width: 220px; height: 220px;"></div>
+            <p id="qr-error-msg" style="color: red; font-size: 12px; display: none;">La cancion es muy larga para crear un QR.</p>
+            <button class="btn-peligro" style="margin-top: 20px;" onclick="cerrarModalQR()">Volver</button>
+        </div>
+    </div>
+
     <div id="visor-canciones" class="seccion fullscreen" style="display: none;">
         <div class="visor-header">
             <h1 id="visor-titulo">Titulo</h1>
@@ -339,33 +255,46 @@
             <p id="visor-info-extra"></p>
         </div>
         
-        <div id="visor-contenido" style="flex-grow: 1; margin-bottom: 60px;"></div>
+        <div id="visor-contenido" style="flex-grow: 1; margin-bottom: 100px;"></div>
         
         <div class="barra-herramientas" id="controles-visor">
-            <div class="herramienta-grupo">
-                <button class="btn-chico" onclick="cancionAnterior()" id="btn-visor-ant">⬅️</button>
-                <button class="btn-chico" onclick="cancionSiguiente()" id="btn-visor-sig">➡️</button>
-                <button class="btn-chico btn-peligro" onclick="cerrarVisor()">⏹️</button>
-            </div>
-            
-            <div class="herramienta-grupo">
-                <span style="font-size: 12px;">Tono:</span>
-                <button class="btn-chico" onclick="transponer(-1)">-</button>
-                <strong id="visor-tono-actual" style="font-size: 14px; width: 25px; text-align: center;">C</strong>
-                <button class="btn-chico" onclick="transponer(1)">+</button>
+            <div style="display: flex; width: 100%; justify-content: space-between; border-bottom: 1px solid var(--borde); padding-bottom: 5px; margin-bottom: 5px;">
+                <div class="herramienta-grupo">
+                    <button class="btn-chico" onclick="cancionAnterior()" id="btn-visor-ant">⬅️ Ant</button>
+                    <button class="btn-chico" onclick="cancionSiguiente()" id="btn-visor-sig">Sig ➡️</button>
+                </div>
+                
+                <div class="herramienta-grupo">
+                    <button class="btn-chico btn-accion" onclick="abrirModalQR()">📱 QR</button>
+                    <button class="btn-chico btn-accion" onclick="window.print()">🖨️</button>
+                    <button class="btn-chico btn-peligro" onclick="cerrarVisor()">⏹️ Salir</button>
+                </div>
             </div>
 
-            <div class="herramienta-grupo">
-                <span style="font-size: 12px;">Scroll:</span>
-                <button class="btn-chico" onclick="toggleAutoScroll()" id="btn-scroll">▶️</button>
-                <input type="range" id="velocidad-scroll" min="1" max="10" value="3" style="width: 60px; margin: 0; padding: 0;">
+            <div style="display: flex; width: 100%; justify-content: space-between; flex-wrap: wrap;">
+                <div class="herramienta-grupo">
+                    <button class="btn-chico" id="btn-metronomo" onclick="toggleMetronomo()" style="background-color: var(--color-alerta); color: black;">⏱️ Play</button>
+                    <span style="font-size: 12px;"><strong id="visor-bpm-actual">--</strong> BPM</span>
+                </div>
+
+                <div class="herramienta-grupo">
+                    <span style="font-size: 12px;">Tono:</span>
+                    <button class="btn-chico" onclick="transponer(-1)">-</button>
+                    <strong id="visor-tono-actual" style="font-size: 14px; width: 25px; text-align: center;">C</strong>
+                    <button class="btn-chico" onclick="transponer(1)">+</button>
+                </div>
+
+                <div class="herramienta-grupo">
+                    <span style="font-size: 12px;">Scroll:</span>
+                    <button class="btn-chico" onclick="toggleAutoScroll()" id="btn-scroll">▶️</button>
+                    <input type="range" id="velocidad-scroll" min="1" max="10" value="3" style="width: 50px; margin: 0; padding: 0;">
+                </div>
             </div>
-            
-            <button class="btn-chico btn-accion" onclick="window.print()">🖨️</button>
         </div>
     </div>
 
     <script>
+        // Registrar PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').then(function() {
                 console.log('PWA Lista para instalar');
@@ -385,29 +314,50 @@
         var scrollInterval = null;
         var scrolleando = false;
 
-        // ESTO ASEGURA QUE SIEMPRE ARRANQUE EN "CANCIONES" AL ABRIR
+        // Variables de Metronomo
+        var audioCtxMetronomo = null;
+        var idIntervalMetronomo = null;
+        var metronomoActivo = false;
+
+        // SISTEMA DE IMPORTACION POR QR (Se ejecuta al abrir la pagina)
+        function chequearImportacionQR() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var importData = urlParams.get('importar');
+            
+            if (importData) {
+                try {
+                    // Decodificar Base64 de forma segura
+                    var jsonStr = decodeURIComponent(escape(atob(importData)));
+                    var cancionImportada = JSON.parse(jsonStr);
+                    
+                    if (confirm("Alguien te compartio la cancion: '" + cancionImportada.titulo + "'. ¿Queres guardarla en tu biblioteca?")) {
+                        bdCanciones.push(cancionImportada);
+                        guardarLocal();
+                        alert("¡Cancion importada y guardada con exito!");
+                    }
+                } catch(e) {
+                    alert("Hubo un error al leer el codigo QR. Puede que la cancion sea demasiado larga o el codigo este dañado.");
+                }
+                // Limpiar la URL para que no vuelva a importar si recarga la pagina
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
         window.onload = function() {
             var guardado = localStorage.getItem("AcordesAppPro");
             if (guardado) bdCanciones = JSON.parse(guardado);
             actualizarDatalist();
+            chequearImportacionQR(); // Chequeamos si vino de un QR
             cambiarPestana('inicio'); 
         };
 
-        function abrirMenu() {
-            document.getElementById('menu-lateral').classList.add('abierto');
-        }
-
-        function cerrarMenu() {
-            document.getElementById('menu-lateral').classList.remove('abierto');
-        }
+        function abrirMenu() { document.getElementById('menu-lateral').classList.add('abierto'); }
+        function cerrarMenu() { document.getElementById('menu-lateral').classList.remove('abierto'); }
 
         function cambiarPestana(id) {
             document.querySelectorAll(".nav-btn").forEach(b => {
-                if(b.getAttribute("data-target") === id) {
-                    b.classList.add("activa");
-                } else {
-                    b.classList.remove("activa");
-                }
+                if(b.getAttribute("data-target") === id) b.classList.add("activa");
+                else b.classList.remove("activa");
             });
 
             document.querySelectorAll(".seccion").forEach(s => {
@@ -417,9 +367,7 @@
             window.scrollTo(0, 0);
 
             cerrarMenu();
-
             if(id !== 'afinador') detenerAfinador();
-
             if(id === 'inicio') dibujarDashboard();
             if(id === 'setlist' && document.getElementById("espacios-setlist").innerHTML === "") agregarFilaSetlist();
         }
@@ -450,10 +398,10 @@
                 div.className = "tarjeta-cancion";
                 div.innerHTML = `
                     <h3>${c.titulo}</h3>
-                    <p style="font-size: 12px; color: var(--texto-secundario); margin: 0 0 5px 0;">👤 ${c.artista || 'Desconocido'} | 🎵 ${c.tono || '?'}</p>
+                    <p style="font-size: 12px; color: var(--texto-secundario); margin: 0 0 5px 0;">👤 ${c.artista || 'Desconocido'} | 🎵 ${c.tono || '?'} | ⏱️ ${c.bpm || '--'}</p>
                     <div>${tagsHTML}</div>
                     <div class="botones-lista">
-                        <button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver</button>
+                        <button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver / Tocar</button>
                         <button class="btn-chico btn-alerta" onclick="cargarParaEditar(${c.idReal})" style="background-color: var(--color-alerta); color: black;">Editar</button>
                         <button class="btn-chico btn-peligro" onclick="borrarCancion(${c.idReal})">Borrar</button>
                     </div>
@@ -471,7 +419,7 @@
         }
 
         function borrarCancion(id) {
-            if(confirm("¿Eliminar cancion?")) {
+            if(confirm("¿Eliminar cancion para siempre?")) {
                 bdCanciones.splice(id, 1);
                 guardarLocal();
                 dibujarDashboard();
@@ -531,6 +479,7 @@
             var c = bdCanciones[id];
             document.getElementById("titulo-cancion").value = c.titulo;
             document.getElementById("artista-cancion").value = c.artista || "";
+            document.getElementById("bpm-cancion").value = c.bpm || "";
             
             var selectTono = document.getElementById("tono-cancion");
             selectTono.value = ""; 
@@ -553,6 +502,7 @@
             idEditando = -1;
             document.getElementById("titulo-cancion").value = "";
             document.getElementById("artista-cancion").value = "";
+            document.getElementById("bpm-cancion").value = "";
             document.getElementById("tono-cancion").value = "";
             document.getElementById("partes-cancion").innerHTML = "";
             document.querySelectorAll("#selector-etiquetas .etiqueta").forEach(e => e.classList.remove("seleccionada"));
@@ -594,8 +544,10 @@
 
             var tono = document.getElementById("tono-cancion").value;
             if(!tono) tono = adivinarTono(partes);
+            
+            var bpm = document.getElementById("bpm-cancion").value.trim();
 
-            var nueva = { titulo, artista: document.getElementById("artista-cancion").value.trim(), tono, etiquetas, partes };
+            var nueva = { titulo, artista: document.getElementById("artista-cancion").value.trim(), bpm, tono, etiquetas, partes };
 
             if(idEditando === -1) bdCanciones.push(nueva);
             else bdCanciones[idEditando] = nueva;
@@ -680,16 +632,22 @@
         function cerrarVisor() {
             liberarPantalla(); 
             detenerAutoScroll();
+            detenerMetronomo(); // Apagamos el metronomo si salimos
             document.getElementById("visor-canciones").style.display = "none";
             document.getElementById("cabecera-app").style.display = "flex";
         }
 
         function dibujarVisorActual() {
             detenerAutoScroll();
+            detenerMetronomo(); // Apagamos el metronomo al cambiar cancion
+            
             var c = listaReproduccion[indiceRep];
             document.getElementById("visor-titulo").innerText = c.titulo;
             document.getElementById("indicador-numero").innerText = listaReproduccion.length > 1 ? `CANCION ${indiceRep + 1} DE ${listaReproduccion.length}` : 'Vista Previa';
             document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Desconocido'}`;
+            
+            // Cargar BPM de esta cancion
+            document.getElementById("visor-bpm-actual").innerText = c.bpm || '--';
             
             tonoOriginalIndex = notasOrden.indexOf(c.tono);
             if(tonoOriginalIndex === -1) tonoOriginalIndex = 0;
@@ -730,6 +688,100 @@
             });
         }
 
+        // --- METRONOMO ---
+        function reproducirClickMetronomo(frecuencia) {
+            if (!audioCtxMetronomo) {
+                audioCtxMetronomo = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtxMetronomo.state === 'suspended') {
+                audioCtxMetronomo.resume();
+            }
+            var osc = audioCtxMetronomo.createOscillator();
+            var gain = audioCtxMetronomo.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtxMetronomo.destination);
+            osc.frequency.value = frecuencia;
+            osc.type = "sine";
+            // Sonido corto tipo "tic"
+            gain.gain.setValueAtTime(1, audioCtxMetronomo.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtxMetronomo.currentTime + 0.05);
+            osc.start(audioCtxMetronomo.currentTime);
+            osc.stop(audioCtxMetronomo.currentTime + 0.05);
+        }
+
+        function toggleMetronomo() {
+            var bpmText = document.getElementById("visor-bpm-actual").innerText;
+            var bpm = parseInt(bpmText);
+            
+            if (isNaN(bpm) || bpm <= 0) {
+                alert("Esta cancion no tiene un BPM (Velocidad) configurado. Editala y agregale uno.");
+                return;
+            }
+
+            if (metronomoActivo) {
+                detenerMetronomo();
+            } else {
+                metronomoActivo = true;
+                document.getElementById("btn-metronomo").innerText = "⏹️ Stop";
+                document.getElementById("btn-metronomo").style.backgroundColor = "var(--color-peligro)";
+                
+                var intervaloMs = 60000 / bpm;
+                
+                // Reproducimos el primero al instante
+                reproducirClickMetronomo(800); 
+                
+                idIntervalMetronomo = setInterval(() => {
+                    reproducirClickMetronomo(800);
+                }, intervaloMs);
+            }
+        }
+
+        function detenerMetronomo() {
+            if (idIntervalMetronomo) clearInterval(idIntervalMetronomo);
+            metronomoActivo = false;
+            document.getElementById("btn-metronomo").innerText = "⏱️ Play";
+            document.getElementById("btn-metronomo").style.backgroundColor = "var(--color-alerta)";
+        }
+
+        // --- GENERADOR DE CODIGO QR ---
+        function abrirModalQR() {
+            var cancion = listaReproduccion[indiceRep];
+            var contenedorQR = document.getElementById("contenedor-codigo-qr");
+            var errorMsg = document.getElementById("qr-error-msg");
+            
+            contenedorQR.innerHTML = ""; // Limpiamos QR anterior
+            errorMsg.style.display = "none";
+            document.getElementById("modal-qr").style.display = "flex";
+
+            try {
+                // Convertir la cancion a texto, luego a Base64
+                var jsonString = JSON.stringify(cancion);
+                var base64String = btoa(unescape(encodeURIComponent(jsonString)));
+                
+                // Armamos un link hacia nuestra propia pagina pero pasandole el dato
+                var urlActual = window.location.origin + window.location.pathname;
+                var urlCompartir = urlActual + "?importar=" + base64String;
+
+                // Generamos el dibujo del QR
+                new QRCode(contenedorQR, {
+                    text: urlCompartir,
+                    width: 220,
+                    height: 220,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            } catch (e) {
+                // Si la cancion tiene muchisima letra, el QR se va a romper por limite de tamaño
+                errorMsg.style.display = "block";
+            }
+        }
+
+        function cerrarModalQR() {
+            document.getElementById("modal-qr").style.display = "none";
+        }
+
+        // --- AUTO SCROLL ---
         function toggleAutoScroll() {
             var btn = document.getElementById("btn-scroll");
             var visor = document.getElementById("visor-canciones");
@@ -757,9 +809,10 @@
             if(scrolleando) { detenerAutoScroll(); toggleAutoScroll(); }
         };
 
+        // --- AFINADOR ---
         var audioCtx;
         var analyser;
-        var frameId;
+        var frameIdAfinador;
 
         function iniciarAfinador() {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -782,19 +835,15 @@
         }
 
         function detenerAfinador() {
-            if(frameId) cancelAnimationFrame(frameId);
+            if(frameIdAfinador) cancelAnimationFrame(frameIdAfinador);
             if(audioCtx) audioCtx.close();
             document.getElementById("btn-iniciar-afinador").style.display = "block";
             document.getElementById("zona-afinador").style.display = "none";
         }
 
         const frecuenciasCuerdas = [
-            { nota: "E (1ra)", freq: 329.63 },
-            { nota: "B (2da)", freq: 246.94 },
-            { nota: "G (3ra)", freq: 196.00 },
-            { nota: "D (4ta)", freq: 146.83 },
-            { nota: "A (5ta)", freq: 110.00 },
-            { nota: "E (6ta)", freq: 82.41 }
+            { nota: "E (1ra)", freq: 329.63 }, { nota: "B (2da)", freq: 246.94 }, { nota: "G (3ra)", freq: 196.00 },
+            { nota: "D (4ta)", freq: 146.83 }, { nota: "A (5ta)", freq: 110.00 }, { nota: "E (6ta)", freq: 82.41 }
         ];
 
         function actualizarAfinador() {
@@ -808,10 +857,7 @@
                 
                 for(let i=1; i<frecuenciasCuerdas.length; i++) {
                     let dif = Math.abs(freq - frecuenciasCuerdas[i].freq);
-                    if(dif < minimaDif) {
-                        minimaDif = dif;
-                        cuerdaCercana = frecuenciasCuerdas[i];
-                    }
+                    if(dif < minimaDif) { minimaDif = dif; cuerdaCercana = frecuenciasCuerdas[i]; }
                 }
 
                 document.getElementById("nota-detectada").innerText = cuerdaCercana.nota;
@@ -831,12 +877,11 @@
                     document.getElementById("indicacion-afinador").innerText = "Baja la tension";
                 }
             }
-            frameId = requestAnimationFrame(actualizarAfinador);
+            frameIdAfinador = requestAnimationFrame(actualizarAfinador);
         }
 
         function autoCorrelacion(buf, sampleRate) {
-            var SIZE = buf.length;
-            var rms = 0;
+            var SIZE = buf.length; var rms = 0;
             for (var i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
             rms = Math.sqrt(rms / SIZE);
             if (rms < 0.01) return -1;
@@ -845,16 +890,13 @@
             for (var i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
             for (var i = 1; i < SIZE / 2; i++) if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
             
-            buf = buf.slice(r1, r2);
-            SIZE = buf.length;
+            buf = buf.slice(r1, r2); SIZE = buf.length;
             var c = new Array(SIZE).fill(0);
             for (var i = 0; i < SIZE; i++) for (var j = 0; j < SIZE - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
             
             var d = 0; while (c[d] > c[d + 1]) d++;
             var maxval = -1, maxpos = -1;
-            for (var i = d; i < SIZE; i++) {
-                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
-            }
+            for (var i = d; i < SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
             var T0 = maxpos;
             return sampleRate / T0;
         }
