@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Acordes Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    
+    <style>
+        :root {
+            --fondo-app: #121212;
+            --fondo-tarjeta: #1e1e1e;
+            --fondo-input: #2d2d2d;
+            --texto-principal: #ffffff;
+            --texto-secundario: #a0a0a0;
+            --color-acorde: #00e676;
+            --color-primario: #2979ff;
+            --color-peligro: #ff5252;
+            --color-alerta: #ffb300;
+            --borde: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fondo-app);
+            color: var(--texto-principal);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 80px;
+        }
+
+        nav {
+            background-color: var(--fondo-tarjeta);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-bottom: 1px solid var(--borde);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--texto-secundario);
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin: 2px;
+        }
+
+        .nav-btn.activo {
+            color: var(--texto-principal);
+            background-color: var(--fondo-input);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .contenedor { max-width: 700px; margin: 15px auto; padding: 0 15px; }
+        .seccion { display: none; animation: fadeIn 0.3s ease; }
+        .seccion.activa { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 { color: var(--texto-principal); margin-top: 0; }
+        
+        button {
+            border: none; border-radius: 8px; padding: 12px; font-size: 16px;
+            font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px;
+            background-color: var(--fondo-input); color: var(--texto-principal);
+        }
+        .btn-accion { background-color: var(--color-primario); color: white; }
+        .btn-guardar { background-color: var(--color-acorde); color: #000; }
+        .btn-peligro { background-color: transparent; border: 1px solid var(--color-peligro); color: var(--color-peligro); }
+        .btn-chico { width: auto; padding: 6px 10px; font-size: 13px; margin: 2px; }
+
+        input, select, textarea {
+            width: 100%; padding: 12px; border: 1px solid var(--borde); border-radius: 8px;
+            font-size: 16px; box-sizing: border-box; background-color: var(--fondo-input);
+            color: var(--texto-principal); margin-bottom: 15px;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-primario); }
+
+        /* Etiquetas */
+        .contenedor-etiquetas { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        .etiqueta {
+            background-color: var(--fondo-input); padding: 5px 10px; border-radius: 15px;
+            font-size: 12px; border: 1px solid var(--borde); cursor: pointer;
+        }
+        .etiqueta.seleccionada { background-color: var(--color-primario); color: white; border-color: var(--color-primario); }
+        .etiqueta-mostrar { background-color: var(--borde); color: var(--texto-secundario); padding: 3px 8px; border-radius: 10px; font-size: 10px; margin-right: 5px;}
+
+        /* Tarjetas */
+        .tarjeta-cancion {
+            background-color: var(--fondo-tarjeta); border: 1px solid var(--borde);
+            padding: 15px; border-radius: 10px; margin-bottom: 10px;
+        }
+        .tarjeta-cancion h3 { margin: 0 0 5px 0; }
+        .botones-lista { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+        
+        .caja-parte { background-color: var(--fondo-tarjeta); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid var(--color-primario); }
+        .fila-armar { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .fila-armar input { margin-bottom: 0; }
+
+        /* Pantalla Completa Visor */
+        .fullscreen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--fondo-app); z-index: 1000; padding: 20px;
+            overflow-y: auto; display: flex; flex-direction: column;
+        }
+        .visor-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--borde); padding-bottom: 10px; }
+        .visor-header h1 { color: var(--color-primario); font-size: 28px; margin-bottom: 5px; }
+        .visor-bloque { margin-bottom: 25px; }
+        .visor-tipo { font-size: 12px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 5px; }
+        .visor-acordes { font-family: monospace; font-size: 22px; color: var(--color-acorde); font-weight: bold; margin-bottom: 5px; }
+        .visor-letra { font-size: 18px; line-height: 1.5; white-space: pre-wrap; }
+        
+        /* Herramientas Visor (Flotantes) */
+        .barra-herramientas {
+            position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--fondo-tarjeta);
+            padding: 10px; display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--borde); z-index: 1010; flex-wrap: wrap; gap: 5px;
+        }
+        .herramienta-grupo { display: flex; gap: 5px; align-items: center; }
+
+        /* Afinador */
+        .aguja-afinador {
+            width: 10px; height: 100px; background-color: var(--color-peligro); margin: 0 auto;
+            transform-origin: bottom center; transition: transform 0.1s; border-radius: 5px;
+        }
+        .centro-afinador { width: 20px; height: 20px; background-color: var(--color-acorde); border-radius: 50%; margin: -10px auto 0 auto; z-index: 2; position: relative;}
+        .nota-afinador { text-align: center; font-size: 60px; font-weight: bold; margin: 20px 0; color: var(--color-primario);}
+        
+        /* Ocultar elementos al imprimir */
+        @media print {
+            body { background-color: white !important; color: black !important; padding: 0; }
+            nav, .barra-herramientas, .btn-imprimir, .no-imprimir { display: none !important; }
+            .fullscreen { position: static; background-color: white; padding: 0; overflow: visible; }
+            .visor-acordes { color: #000 !important; text-shadow: none !important; font-weight: bold;}
+            .visor-letra { color: #000 !important; }
+            h1, h2, h3, p { color: black !important; }
+            .visor-header { border-bottom: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <datalist id="lista-nombres"></datalist>
+
+    <nav id="barra-navegacion" class="no-imprimir">
+        <button class="nav-btn activo" onclick="cambiarPestana('inicio', this)">🎸 Canciones</button>
+        <button class="nav-btn" onclick="cambiarPestana('agregar', this)">➕ Nueva</button>
+        <button class="nav-btn" onclick="cambiarPestana('setlist', this)">📋 Setlist</button>
+        <button class="nav-btn" onclick="cambiarPestana('afinador', this)">🎵 Afinador</button>
+    </nav>
+
+    <div class="contenedor">
+
+        <div id="sec-inicio" class="seccion activa">
+            <input type="text" id="buscador-inicio" placeholder="🔍 Buscar cancion o artista..." onkeyup="filtrarDashboard()">
+            
+            <div class="contenedor-etiquetas" id="filtros-dashboard">
+                <span style="font-size: 14px; margin-top: 3px;">Filtros: </span>
+                <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Alabanza')">Alabanza</div>
+                <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Adoracion')">Adoracion</div>
+                <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Corito')">Corito</div>
+                <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Rapida')">Rapida</div>
+                <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Lenta')">Lenta</div>
+                <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Todas')">Quitar Filtros</div>
+            </div>
+
+            <div id="lista-canciones-dashboard"></div>
+        </div>
+
+        <div id="sec-agregar" class="seccion">
+            <h2 id="titulo-seccion-agregar">Crear Cancion</h2>
+            
+            <label>Titulo</label>
+            <input type="text" id="titulo-cancion">
+            
+            <label>Artista (Opcional)</label>
+            <input type="text" id="artista-cancion">
+            
+            <label>Etiquetas (Selecciona varias)</label>
+            <div class="contenedor-etiquetas" id="selector-etiquetas">
+                <div class="etiqueta" onclick="toggleEtiqueta(this)">Alabanza</div>
+                <div class="etiqueta" onclick="toggleEtiqueta(this)">Adoracion</div>
+                <div class="etiqueta" onclick="toggleEtiqueta(this)">Corito</div>
+                <div class="etiqueta" onclick="toggleEtiqueta(this)">Rapida</div>
+                <div class="etiqueta" onclick="toggleEtiqueta(this)">Lenta</div>
+            </div>
+
+            <label>Tono Original</label>
+            <select id="tono-cancion">
+                <option value="">Adivinar (IA)</option>
+                <option value="C">C (Do)</option>
+                <option value="C#">C# / Db</option>
+                <option value="D">D (Re)</option>
+                <option value="D#">D# / Eb</option>
+                <option value="E">E (Mi)</option>
+                <option value="F">F (Fa)</option>
+                <option value="F#">F# / Gb</option>
+                <option value="G">G (Sol)</option>
+                <option value="G#">G# / Ab</option>
+                <option value="A">A (La)</option>
+                <option value="A#">A# / Bb</option>
+                <option value="B">B (Si)</option>
+            </select>
+            
+            <div id="partes-cancion"></div>
+            
+            <button onclick="agregarParteFormulario()">+ Añadir estrofa/estribillo</button>
+            <button class="btn-guardar" onclick="guardarCancion()" style="margin-top: 20px;">💾 Guardar</button>
+            <button class="btn-peligro" onclick="cancelarEdicion()" id="btn-cancelar-edicion" style="display: none;">❌ Cancelar Edicion</button>
+        </div>
+
+        <div id="sec-setlist" class="seccion">
+            <h2>Armar Setlist</h2>
+            <div id="espacios-setlist"></div>
+            <button onclick="agregarFilaSetlist()">+ Agregar cancion a la lista</button>
+            <br><br>
+            <button class="btn-accion" onclick="iniciarModoPresentacion()">▶️ Iniciar Presentacion</button>
+        </div>
+
+        <div id="sec-afinador" class="seccion" style="text-align: center;">
+            <h2>Afinador de Guitarra</h2>
+            <p>Permite el acceso al microfono para afinar.</p>
+            <button class="btn-accion" id="btn-iniciar-afinador" onclick="iniciarAfinador()">Encender Afinador</button>
+            
+            <div id="zona-afinador" style="display: none; margin-top: 40px;">
+                <div style="width: 200px; height: 100px; border-bottom: 2px solid var(--borde); margin: 0 auto; position: relative; overflow: hidden;">
+                    <div class="aguja-afinador" id="aguja"></div>
+                </div>
+                <div class="centro-afinador"></div>
+                <div class="nota-afinador" id="nota-detectada">--</div>
+                <p id="indicacion-afinador">Toca una cuerda</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="visor-canciones" class="seccion fullscreen">
+        <div class="visor-header">
+            <h1 id="visor-titulo">Titulo</h1>
+            <p id="indicador-numero" class="no-imprimir">Vista Previa</p>
+            <p id="visor-info-extra" style="color: var(--texto-secundario);"></p>
+        </div>
+        
+        <div id="visor-contenido" style="flex-grow: 1; margin-bottom: 60px;"></div>
+        
+        <div class="barra-herramientas" id="controles-visor">
+            <div class="herramienta-grupo">
+                <button class="btn-chico" onclick="cancionAnterior()" id="btn-visor-ant">⬅️</button>
+                <button class="btn-chico" onclick="cancionSiguiente()" id="btn-visor-sig">➡️</button>
+                <button class="btn-chico btn-peligro" onclick="cerrarVisor()">⏹️</button>
+            </div>
+            
+            <div class="herramienta-grupo">
+                <span style="font-size: 12px;">Tono:</span>
+                <button class="btn-chico" onclick="transponer(-1)">-</button>
+                <strong id="visor-tono-actual" style="font-size: 14px; width: 25px; text-align: center;">C</strong>
+                <button class="btn-chico" onclick="transponer(1)">+</button>
+            </div>
+
+            <div class="herramienta-grupo">
+                <span style="font-size: 12px;">Scroll:</span>
+                <button class="btn-chico" onclick="toggleAutoScroll()" id="btn-scroll">▶️</button>
+                <input type="range" id="velocidad-scroll" min="1" max="10" value="3" style="width: 60px; margin: 0; padding: 0;">
+            </div>
+            
+            <button class="btn-chico btn-accion" onclick="window.print()">🖨️</button>
+        </div>
+    </div>
+
+    <script>
+        // --- REGISTRO DEL SERVICE WORKER PARA PWA ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(function() {
+                console.log('PWA Lista para instalar');
+            });
+        }
+
+        // --- VARIABLES GLOBALES ---
+        var bdCanciones = [];
+        var listaReproduccion = [];
+        var indiceRep = 0;
+        var idEditando = -1;
+        
+        // Transporte
+        const notasOrden = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        var tonoOriginalIndex = 0;
+        var tonoActualIndex = 0;
+
+        // Auto-Scroll
+        var scrollInterval = null;
+        var scrolleando = false;
+
+        window.onload = function() {
+            var guardado = localStorage.getItem("AcordesAppPro");
+            if (guardado) bdCanciones = JSON.parse(guardado);
+            actualizarDatalist();
+            dibujarDashboard();
+        };
+
+        // --- NAVEGACION ---
+        function cambiarPestana(id, btn) {
+            if(btn) {
+                document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("activa"));
+                btn.classList.add("activa");
+            }
+            document.querySelectorAll(".seccion").forEach(s => {
+                if(!s.classList.contains("fullscreen")) s.classList.remove("activa");
+            });
+            document.getElementById("sec-" + id).classList.add("activa");
+            window.scrollTo(0, 0);
+
+            // Detener afinador si salimos de esa pestaña
+            if(id !== 'afinador') detenerAfinador();
+
+            if(id === 'inicio') dibujarDashboard();
+            if(id === 'setlist' && document.getElementById("espacios-setlist").innerHTML === "") agregarFilaSetlist();
+        }
+
+        // --- INICIO Y BUSCADOR ---
+        function dibujarDashboard(filtroTag = null) {
+            var cont = document.getElementById("lista-canciones-dashboard");
+            cont.innerHTML = "";
+            var busqueda = document.getElementById("buscador-inicio").value.toLowerCase();
+
+            var filtradas = bdCanciones.map((c, index) => ({...c, idReal: index})).filter(c => {
+                var coincideTexto = c.titulo.toLowerCase().includes(busqueda) || (c.artista && c.artista.toLowerCase().includes(busqueda));
+                var coincideTag = filtroTag == null || filtroTag === 'Todas' ? true : (c.etiquetas && c.etiquetas.includes(filtroTag));
+                return coincideTexto && coincideTag;
+            });
+
+            if (filtradas.length === 0) {
+                cont.innerHTML = "<p style='text-align:center;'>No se encontraron canciones.</p>";
+                return;
+            }
+
+            filtradas.forEach(c => {
+                var tagsHTML = "";
+                if(c.etiquetas) {
+                    c.etiquetas.forEach(t => tagsHTML += `<span class="etiqueta-mostrar">${t}</span>`);
+                }
+
+                var div = document.createElement("div");
+                div.className = "tarjeta-cancion";
+                div.innerHTML = `
+                    <h3>${c.titulo}</h3>
+                    <p style="font-size: 12px; color: var(--texto-secundario); margin: 0 0 5px 0;">👤 ${c.artista || 'Desconocido'} | 🎵 ${c.tono || '?'}</p>
+                    <div>${tagsHTML}</div>
+                    <div class="botones-lista">
+                        <button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver</button>
+                        <button class="btn-chico btn-alerta" onclick="cargarParaEditar(${c.idReal})" style="background-color: var(--color-alerta); color: black;">Editar</button>
+                        <button class="btn-chico btn-peligro" onclick="borrarCancion(${c.idReal})">Borrar</button>
+                    </div>
+                `;
+                cont.appendChild(div);
+            });
+        }
+
+        function filtrarDashboard() { dibujarDashboard(); }
+        
+        function filtrarPorEtiqueta(elem, tag) {
+            document.querySelectorAll("#filtros-dashboard .etiqueta").forEach(e => e.classList.remove("seleccionada"));
+            elem.classList.add("seleccionada");
+            dibujarDashboard(tag);
+        }
+
+        // --- GESTION DE CANCIONES ---
+        function borrarCancion(id) {
+            if(confirm("¿Eliminar cancion?")) {
+                bdCanciones.splice(id, 1);
+                guardarLocal();
+                dibujarDashboard();
+            }
+        }
+
+        function guardarLocal() {
+            localStorage.setItem("AcordesAppPro", JSON.stringify(bdCanciones));
+            actualizarDatalist();
+        }
+
+        function actualizarDatalist() {
+            var dl = document.getElementById("lista-nombres");
+            dl.innerHTML = "";
+            bdCanciones.forEach(c => dl.innerHTML += `<option value="${c.titulo}">`);
+        }
+
+        // --- AGREGAR Y EDITAR ---
+        function toggleEtiqueta(elem) { elem.classList.toggle("seleccionada"); }
+
+        function agregarParteFormulario(tipo='', acordes='', letra='') {
+            var div = document.createElement("div");
+            div.className = "caja-parte";
+            div.innerHTML = `
+                <select class="input-tipo">
+                    <option ${tipo=='Estrofa'?'selected':''}>Estrofa</option>
+                    <option ${tipo=='Estribillo'?'selected':''}>Estribillo</option>
+                    <option ${tipo=='Intro'?'selected':''}>Intro</option>
+                    <option ${tipo=='Solo'?'selected':''}>Solo</option>
+                    <option ${tipo=='Puente'?'selected':''}>Puente</option>
+                </select>
+                <input type="text" class="input-acordes" placeholder="Acordes (ej: G D Em C)" value="${acordes}">
+                <textarea class="input-letra" placeholder="Letra...">${letra}</textarea>
+                <button class="btn-peligro" style="padding:8px;" onclick="this.parentElement.remove()">Quitar</button>
+            `;
+            document.getElementById("partes-cancion").appendChild(div);
+        }
+
+        function cargarParaEditar(id) {
+            idEditando = id;
+            var c = bdCanciones[id];
+            document.getElementById("titulo-cancion").value = c.titulo;
+            document.getElementById("artista-cancion").value = c.artista || "";
+            
+            // Limpiar tono al cargar (para que el select lo tome si existe)
+            var selectTono = document.getElementById("tono-cancion");
+            selectTono.value = ""; 
+            if(c.tono && notasOrden.includes(c.tono)) selectTono.value = c.tono;
+
+            document.querySelectorAll("#selector-etiquetas .etiqueta").forEach(e => {
+                if(c.etiquetas && c.etiquetas.includes(e.innerText)) e.classList.add("seleccionada");
+                else e.classList.remove("seleccionada");
+            });
+
+            document.getElementById("partes-cancion").innerHTML = "";
+            c.partes.forEach(p => agregarParteFormulario(p.tipo, p.acordes, p.letra));
+
+            document.getElementById("titulo-seccion-agregar").innerText = "Editando Cancion";
+            document.getElementById("btn-cancelar-edicion").style.display = "block";
+            cambiarPestana('agregar', document.querySelectorAll(".nav-btn")[1]);
+        }
+
+        function cancelarEdicion() {
+            idEditando = -1;
+            document.getElementById("titulo-cancion").value = "";
+            document.getElementById("artista-cancion").value = "";
+            document.getElementById("tono-cancion").value = "";
+            document.getElementById("partes-cancion").innerHTML = "";
+            document.querySelectorAll("#selector-etiquetas .etiqueta").forEach(e => e.classList.remove("seleccionada"));
+            document.getElementById("titulo-seccion-agregar").innerText = "Crear Cancion";
+            document.getElementById("btn-cancelar-edicion").style.display = "none";
+            cambiarPestana('inicio', document.querySelectorAll(".nav-btn")[0]);
+        }
+
+        function adivinarTono(partes) {
+            for (let p of partes) {
+                if (p.acordes) {
+                    let primero = p.acordes.split('-')[0].trim();
+                    let limpio = primero.replace(/m|7|maj|sus|dim|aug/gi, '').trim();
+                    if (notasOrden.includes(limpio)) return limpio;
+                }
+            }
+            return "C"; // Por defecto si no encuentra
+        }
+
+        function procesarAcordesFormato(texto) {
+            let limpio = texto.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+            if(!limpio) return "";
+            return limpio.split(' ').map(n => n.charAt(0).toUpperCase() + n.substring(1)).join(' - ');
+        }
+
+        function guardarCancion() {
+            var titulo = document.getElementById("titulo-cancion").value.trim();
+            if (!titulo) return alert("Falta el titulo");
+
+            var partes = [];
+            document.querySelectorAll(".caja-parte").forEach(c => {
+                var ac = procesarAcordesFormato(c.querySelector(".input-acordes").value);
+                var le = c.querySelector(".input-letra").value;
+                if(ac || le.trim()) partes.push({ tipo: c.querySelector(".input-tipo").value, acordes: ac, letra: le });
+            });
+
+            var etiquetas = [];
+            document.querySelectorAll("#selector-etiquetas .etiqueta.seleccionada").forEach(e => etiquetas.push(e.innerText));
+
+            var tono = document.getElementById("tono-cancion").value;
+            if(!tono) tono = adivinarTono(partes);
+
+            var nueva = { titulo, artista: document.getElementById("artista-cancion").value.trim(), tono, etiquetas, partes };
+
+            if(idEditando === -1) bdCanciones.push(nueva);
+            else bdCanciones[idEditando] = nueva;
+
+            guardarLocal();
+            cancelarEdicion();
+            alert("Guardado exitosamente");
+        }
+
+        // --- SETLIST Y VISOR ---
+        function agregarFilaSetlist() {
+            var div = document.createElement("div");
+            div.className = "fila-armar";
+            div.innerHTML = `<input type="text" list="lista-nombres" class="input-setlist" placeholder="Buscar..."><button class="btn-peligro btn-chico" onclick="this.parentElement.remove()">❌</button>`;
+            document.getElementById("espacios-setlist").appendChild(div);
+        }
+
+        function verCancionIndividual(id) {
+            listaReproduccion = [bdCanciones[id]];
+            indiceRep = 0;
+            document.getElementById("btn-visor-ant").style.display = "none";
+            document.getElementById("btn-visor-sig").style.display = "none";
+            abrirVisor();
+        }
+
+        function iniciarModoPresentacion() {
+            listaReproduccion = [];
+            document.querySelectorAll(".input-setlist").forEach(inp => {
+                var c = bdCanciones.find(x => x.titulo === inp.value.trim());
+                if(c) listaReproduccion.push(c);
+            });
+            if(listaReproduccion.length === 0) return alert("No hay canciones validas");
+            
+            indiceRep = 0;
+            document.getElementById("btn-visor-ant").style.display = "inline-block";
+            document.getElementById("btn-visor-sig").style.display = "inline-block";
+            abrirVisor();
+        }
+
+        function abrirVisor() {
+            document.getElementById("barra-navegacion").style.display = "none";
+            document.getElementById("visor-canciones").style.display = "flex";
+            dibujarVisorActual();
+        }
+
+        function cerrarVisor() {
+            detenerAutoScroll();
+            document.getElementById("visor-canciones").style.display = "none";
+            document.getElementById("barra-navegacion").style.display = "flex";
+        }
+
+        function dibujarVisorActual() {
+            detenerAutoScroll();
+            var c = listaReproduccion[indiceRep];
+            document.getElementById("visor-titulo").innerText = c.titulo;
+            document.getElementById("indicador-numero").innerText = listaReproduccion.length > 1 ? `CANCION ${indiceRep + 1} DE ${listaReproduccion.length}` : 'Vista Previa';
+            document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Desconocido'}`;
+            
+            // Preparar tono para transporte
+            tonoOriginalIndex = notasOrden.indexOf(c.tono);
+            if(tonoOriginalIndex === -1) tonoOriginalIndex = 0; // Por defecto C
+            tonoActualIndex = tonoOriginalIndex;
+            document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
+
+            var html = "";
+            c.partes.forEach(p => {
+                html += `<div class="visor-bloque"><div class="visor-tipo">${p.tipo}</div>`;
+                if(p.acordes) html += `<div class="visor-acordes" data-original="${p.acordes}">${p.acordes}</div>`;
+                if(p.letra) html += `<div class="visor-letra">${p.letra}</div>`;
+                html += `</div>`;
+            });
+            document.getElementById("visor-contenido").innerHTML = html;
+            document.getElementById("visor-canciones").scrollTop = 0;
+        }
+
+        function cancionAnterior() { if(indiceRep > 0) { indiceRep--; dibujarVisorActual(); } }
+        function cancionSiguiente() {
+            if(indiceRep < listaReproduccion.length - 1) { indiceRep++; dibujarVisorActual(); }
+            else { alert("Fin del Setlist"); cerrarVisor(); }
+        }
+
+        // --- TRANSPORTE DE ACORDES ---
+        function transponer(direccion) {
+            tonoActualIndex = (tonoActualIndex + direccion + 12) % 12;
+            document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
+            
+            var diff = (tonoActualIndex - tonoOriginalIndex + 12) % 12;
+
+            document.querySelectorAll(".visor-acordes").forEach(div => {
+                var original = div.getAttribute("data-original");
+                // Regex para atrapar las notas sin modificar la 'm' o '7'
+                var nuevo = original.replace(/[CDEFGAB]#?/g, match => {
+                    var idx = notasOrden.indexOf(match);
+                    if(idx === -1) return match;
+                    return notasOrden[(idx + diff) % 12];
+                });
+                div.innerText = nuevo;
+            });
+        }
+
+        // --- AUTO SCROLL ---
+        function toggleAutoScroll() {
+            var btn = document.getElementById("btn-scroll");
+            var visor = document.getElementById("visor-canciones");
+            
+            if(scrolleando) {
+                detenerAutoScroll();
+            } else {
+                scrolleando = true;
+                btn.innerText = "⏸️";
+                var velocidadStr = document.getElementById("velocidad-scroll").value;
+                // A mayor numero en el slider, menor tiempo de intervalo (mas rapido)
+                var tiempo = 110 - (parseInt(velocidadStr) * 10); 
+                
+                scrollInterval = setInterval(() => {
+                    visor.scrollBy(0, 1);
+                    // Si llega al final, detener
+                    if (visor.scrollTop + visor.clientHeight >= visor.scrollHeight - 5) detenerAutoScroll();
+                }, tiempo);
+            }
+        }
+        function detenerAutoScroll() {
+            clearInterval(scrollInterval);
+            scrolleando = false;
+            document.getElementById("btn-scroll").innerText = "▶️";
+        }
+        document.getElementById("velocidad-scroll").onchange = function() {
+            if(scrolleando) { detenerAutoScroll(); toggleAutoScroll(); }
+        };
+
+        // --- AFINADOR BÁSICO (Microfono) ---
+        var audioCtx;
+        var analyser;
+        var frameId;
+
+        function iniciarAfinador() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 2048;
+                    var source = audioCtx.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    
+                    document.getElementById("btn-iniciar-afinador").style.display = "none";
+                    document.getElementById("zona-afinador").style.display = "block";
+                    actualizarAfinador();
+                }).catch(function(err) {
+                    alert("Error al acceder al microfono: " + err);
+                });
+            } else {
+                alert("Tu navegador no soporta grabacion de audio.");
+            }
+        }
+
+        function detenerAfinador() {
+            if(frameId) cancelAnimationFrame(frameId);
+            if(audioCtx) audioCtx.close();
+            document.getElementById("btn-iniciar-afinador").style.display = "block";
+            document.getElementById("zona-afinador").style.display = "none";
+        }
+
+        // Frecuencias estandar de la guitarra (Afinacion E standard)
+        const frecuenciasCuerdas = [
+            { nota: "E (1ra)", freq: 329.63 },
+            { nota: "B (2da)", freq: 246.94 },
+            { nota: "G (3ra)", freq: 196.00 },
+            { nota: "D (4ta)", freq: 146.83 },
+            { nota: "A (5ta)", freq: 110.00 },
+            { nota: "E (6ta)", freq: 82.41 }
+        ];
+
+        function actualizarAfinador() {
+            var buffer = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(buffer);
+            var freq = autoCorrelacion(buffer, audioCtx.sampleRate);
+
+            if (freq !== -1) {
+                // Buscar la cuerda mas cercana
+                let cuerdaCercana = frecuenciasCuerdas[0];
+                let minimaDif = Math.abs(freq - cuerdaCercana.freq);
+                
+                for(let i=1; i<frecuenciasCuerdas.length; i++) {
+                    let dif = Math.abs(freq - frecuenciasCuerdas[i].freq);
+                    if(dif < minimaDif) {
+                        minimaDif = dif;
+                        cuerdaCercana = frecuenciasCuerdas[i];
+                    }
+                }
+
+                document.getElementById("nota-detectada").innerText = cuerdaCercana.nota;
+                
+                // Calcular diferencia en "cents" (rango -50 a +50 aprox)
+                var cents = 1200 * Math.log2(freq / cuerdaCercana.freq);
+                
+                // Mover la aguja (rotar desde -45deg a 45deg)
+                // Limitamos visualmente a +- 50 cents
+                var rotacion = Math.max(-45, Math.min(45, (cents / 50) * 45)); 
+                document.getElementById("aguja").style.transform = `rotate(${rotacion}deg)`;
+
+                if(Math.abs(cents) < 5) {
+                    document.getElementById("aguja").style.backgroundColor = "var(--color-acorde)";
+                    document.getElementById("indicacion-afinador").innerText = "¡Afinada!";
+                } else if (cents < 0) {
+                    document.getElementById("aguja").style.backgroundColor = "var(--color-alerta)";
+                    document.getElementById("indicacion-afinador").innerText = "Sube la tension ↑";
+                } else {
+                    document.getElementById("aguja").style.backgroundColor = "var(--color-peligro)";
+                    document.getElementById("indicacion-afinador").innerText = "Baja la tension ↓";
+                }
+            }
+            frameId = requestAnimationFrame(actualizarAfinador);
+        }
+
+        // Algoritmo matematico para detectar la frecuencia (Pitch Detection)
+        function autoCorrelacion(buf, sampleRate) {
+            var SIZE = buf.length;
+            var rms = 0;
+            for (var i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+            rms = Math.sqrt(rms / SIZE);
+            if (rms < 0.01) return -1; // No hay sonido suficiente
+
+            var r1 = 0, r2 = SIZE - 1, thres = 0.2;
+            for (var i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            for (var i = 1; i < SIZE / 2; i++) if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+            
+            buf = buf.slice(r1, r2);
+            SIZE = buf.length;
+            var c = new Array(SIZE).fill(0);
+            for (var i = 0; i < SIZE; i++) for (var j = 0; j < SIZE - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
+            
+            var d = 0; while (c[d] > c[d + 1]) d++;
+            var maxval = -1, maxpos = -1;
+            for (var i = d; i < SIZE; i++) {
+                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+            }
+            var T0 = maxpos;
+            return sampleRate / T0;
+        }
+    </script>
+</body>
+</html>
