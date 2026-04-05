@@ -21,6 +21,8 @@
             --color-peligro: #ff5252;
             --color-alerta: #ffb300;
             --borde: #333333;
+            /* Variable dinamica para el zoom */
+            --factor-zoom: 1;
         }
 
         body {
@@ -95,10 +97,26 @@
         .fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--fondo-app); z-index: 1000; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
         .visor-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--borde); padding-bottom: 10px; }
         .visor-header h1 { color: var(--color-primario); font-size: 32px; margin-bottom: 5px; }
+        
+        /* Contenedor centralizado para pantallas gigantes */
+        #visor-contenido { max-width: 800px; margin: 0 auto; width: 100%; }
+        
         .visor-bloque { margin-bottom: 25px; }
         .visor-tipo { font-size: 14px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 5px; }
-        .visor-acordes { font-family: monospace; font-size: 26px; color: var(--color-acorde); font-weight: bold; margin-bottom: 5px; }
-        .visor-letra { font-size: 22px; line-height: 1.5; white-space: pre-wrap; }
+        
+        /* Textos fluidos e inteligentes */
+        .visor-acordes { 
+            font-family: monospace; 
+            font-size: calc(clamp(20px, 5vw, 34px) * var(--factor-zoom)); 
+            color: var(--color-acorde); 
+            font-weight: bold; 
+            margin-bottom: 5px; 
+        }
+        .visor-letra { 
+            font-size: calc(clamp(16px, 4vw, 26px) * var(--factor-zoom)); 
+            line-height: 1.5; 
+            white-space: pre-wrap; 
+        }
         
         .barra-herramientas {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--fondo-tarjeta);
@@ -235,8 +253,8 @@
                     <button class="btn-chico" onclick="cancionSiguiente()">➡️</button>
                 </div>
                 <div class="herramienta-grupo">
-                    <button class="btn-chico" onclick="ajustarZoom(-2)">A-</button>
-                    <button class="btn-chico" onclick="ajustarZoom(2)">A+</button>
+                    <button class="btn-chico" onclick="ajustarZoom(-0.1)">A-</button>
+                    <button class="btn-chico" onclick="ajustarZoom(0.1)">A+</button>
                     <button class="btn-chico btn-accion" onclick="abrirModalQR()">QR</button>
                     <button class="btn-chico btn-peligro" onclick="cerrarVisor()">⏹️</button>
                 </div>
@@ -265,8 +283,9 @@
         var indiceRep = 0;
         var idEditando = -1;
         var pantallaActiva = null; 
-        var zoomBaseAcordes = 26;
-        var zoomBaseLetra = 22;
+        
+        // Variable central para el nuevo sistema de zoom
+        var factorZoom = 1;
         
         const notasOrden = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
         var tonoOriginalIndex = 0;
@@ -277,10 +296,26 @@
         var idIntervalMetronomo = null;
         var metronomoActivo = false;
 
+        function chequearImportacionQR() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var importData = urlParams.get('importar');
+            if (importData) {
+                try {
+                    var jsonStr = decodeURIComponent(escape(atob(importData)));
+                    var cancionImportada = JSON.parse(jsonStr);
+                    if (confirm("Compartieron: '" + cancionImportada.titulo + "'. ¿Guardar?")) {
+                        bdCanciones.push(cancionImportada); guardarLocal(); alert("¡Guardada!");
+                    }
+                } catch(e) { alert("Error al leer QR."); }
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
         window.onload = function() {
             var guardado = localStorage.getItem("AcordesAppPro");
             if (guardado) bdCanciones = JSON.parse(guardado);
             actualizarDatalist();
+            chequearImportacionQR(); 
             cambiarPestana('inicio'); 
         };
 
@@ -298,12 +333,13 @@
             if(id === 'inicio') dibujarDashboard();
         }
 
-        // FUNCION DE ZOOM
+        // FUNCION DE ZOOM MEJORADA (Usa variables de CSS para que sea fluido en cualquier pantalla)
         function ajustarZoom(delta) {
-            zoomBaseAcordes += delta;
-            zoomBaseLetra += delta;
-            document.querySelectorAll('.visor-acordes').forEach(el => el.style.fontSize = zoomBaseAcordes + 'px');
-            document.querySelectorAll('.visor-letra').forEach(el => el.style.fontSize = zoomBaseLetra + 'px');
+            factorZoom += delta;
+            // Ponemos limites para que la letra no desaparezca ni sea infinitamente grande
+            if(factorZoom < 0.5) factorZoom = 0.5;
+            if(factorZoom > 3.0) factorZoom = 3.0;
+            document.documentElement.style.setProperty('--factor-zoom', factorZoom);
         }
 
         function dibujarDashboard(filtroTag = null) {
@@ -318,7 +354,7 @@
             filtradas.forEach(c => {
                 var div = document.createElement("div");
                 div.className = "tarjeta-cancion";
-                div.innerHTML = `<h3>${c.titulo}</h3><p>👤 ${c.artista || 'Descon'} | 🎵 ${c.tono || '?'} | ⏱️ ${c.bpm || '--'}</p><div class="botones-lista"><button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver</button><button class="btn-chico btn-alerta" onclick="cargarParaEditar(${c.idReal})" style="background-color: var(--color-alerta); color: black;">Editar</button><button class="btn-chico btn-peligro" onclick="borrarCancion(${c.idReal})">Borrar</button></div>`;
+                div.innerHTML = `<h3>${c.titulo}</h3><p>👤 ${c.artista || 'Descon'} | 🎵 ${c.tono || '?'} | ⏱️ ${c.bpm || '--'}</p><div class="botones-lista"><button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver / Tocar</button><button class="btn-chico btn-alerta" onclick="cargarParaEditar(${c.idReal})" style="background-color: var(--color-alerta); color: black;">Editar</button><button class="btn-chico btn-peligro" onclick="borrarCancion(${c.idReal})">Borrar</button></div>`;
                 cont.appendChild(div);
             });
         }
@@ -330,7 +366,7 @@
             dibujarDashboard(tag);
         }
 
-        function borrarCancion(id) { if(confirm("Borrar?")) { bdCanciones.splice(id, 1); guardarLocal(); dibujarDashboard(); } }
+        function borrarCancion(id) { if(confirm("¿Eliminar?")) { bdCanciones.splice(id, 1); guardarLocal(); dibujarDashboard(); } }
         function guardarLocal() { localStorage.setItem("AcordesAppPro", JSON.stringify(bdCanciones)); actualizarDatalist(); }
         function actualizarDatalist() { var dl = document.getElementById("lista-nombres"); dl.innerHTML = ""; bdCanciones.forEach(c => dl.innerHTML += `<option value="${c.titulo}">`); }
         function toggleEtiqueta(elem) { elem.classList.toggle("seleccionada"); }
@@ -405,12 +441,18 @@
 
         function dibujarVisorActual() {
             var c = listaReproduccion[indiceRep]; document.getElementById("visor-titulo").innerText = c.titulo;
-            document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Descon'}`;
+            document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Descon'} | ⏱️ ${c.bpm||'--'}`;
             document.getElementById("visor-bpm-actual").innerText = c.bpm || '--';
             tonoActualIndex = notasOrden.indexOf(c.tono) !== -1 ? notasOrden.indexOf(c.tono) : 0;
             document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
+            
             var html = "";
-            c.partes.forEach(p => { html += `<div class="visor-bloque"><div class="visor-tipo">${p.tipo}</div><div class="visor-acordes" data-original="${p.acordes}" style="font-size: ${zoomBaseAcordes}px">${p.acordes}</div><div class="visor-letra" style="font-size: ${zoomBaseLetra}px">${p.letra}</div></div>`; });
+            c.partes.forEach(p => { 
+                html += `<div class="visor-bloque"><div class="visor-tipo">${p.tipo}</div>`;
+                if (p.acordes) html += `<div class="visor-acordes" data-original="${p.acordes}">${p.acordes}</div>`;
+                if (p.letra) html += `<div class="visor-letra">${p.letra}</div>`;
+                html += `</div>`;
+            });
             document.getElementById("visor-contenido").innerHTML = html;
         }
 
@@ -443,6 +485,27 @@
             document.getElementById("modal-qr").style.display = "flex";
         }
         function cerrarModalQR() { document.getElementById("modal-qr").style.display = "none"; }
+        
+        function toggleAutoScroll() {
+            var btn = document.getElementById("btn-scroll");
+            var visor = document.getElementById("visor-canciones");
+            
+            if(scrolleando) {
+                detenerAutoScroll();
+            } else {
+                scrolleando = true;
+                btn.innerText = "⏸️";
+                var velocidadStr = document.getElementById("velocidad-scroll").value;
+                var tiempo = 110 - (parseInt(velocidadStr) * 10); 
+                
+                scrollInterval = setInterval(() => {
+                    visor.scrollBy(0, 1);
+                    if (visor.scrollTop + visor.clientHeight >= visor.scrollHeight - 5) detenerAutoScroll();
+                }, tiempo);
+            }
+        }
+        function detenerAutoScroll() { clearInterval(scrollInterval); scrolleando = false; document.getElementById("btn-scroll").innerText = "▶️"; }
+        document.getElementById("velocidad-scroll").onchange = function() { if(scrolleando) { detenerAutoScroll(); toggleAutoScroll(); } };
     </script>
 </body>
 </html>
