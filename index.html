@@ -29,7 +29,7 @@
             color: var(--texto-principal);
             margin: 0;
             padding: 0;
-            padding-bottom: 120px; /* Mas espacio abajo por la doble barra de herramientas */
+            padding-bottom: 140px; 
         }
 
         #cabecera-app {
@@ -94,11 +94,11 @@
 
         .fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--fondo-app); z-index: 1000; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
         .visor-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--borde); padding-bottom: 10px; }
-        .visor-header h1 { color: var(--color-primario); font-size: 28px; margin-bottom: 5px; }
+        .visor-header h1 { color: var(--color-primario); font-size: 32px; margin-bottom: 5px; }
         .visor-bloque { margin-bottom: 25px; }
-        .visor-tipo { font-size: 12px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 5px; }
-        .visor-acordes { font-family: monospace; font-size: 22px; color: var(--color-acorde); font-weight: bold; margin-bottom: 5px; }
-        .visor-letra { font-size: 18px; line-height: 1.5; white-space: pre-wrap; }
+        .visor-tipo { font-size: 14px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 5px; }
+        .visor-acordes { font-family: monospace; font-size: 26px; color: var(--color-acorde); font-weight: bold; margin-bottom: 5px; }
+        .visor-letra { font-size: 22px; line-height: 1.5; white-space: pre-wrap; }
         
         .barra-herramientas {
             position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--fondo-tarjeta);
@@ -111,7 +111,6 @@
         .centro-afinador { width: 20px; height: 20px; background-color: var(--color-acorde); border-radius: 50%; margin: -10px auto 0 auto; z-index: 2; position: relative;}
         .nota-afinador { text-align: center; font-size: 60px; font-weight: bold; margin: 20px 0; color: var(--color-primario);}
         
-        /* Modal QR */
         #modal-qr { display: none; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.9); z-index: 3000; }
         #contenedor-codigo-qr img { margin: 0 auto; border: 10px solid white; border-radius: 5px;}
         
@@ -154,7 +153,6 @@
 
         <div id="sec-inicio" class="seccion">
             <input type="text" id="buscador-inicio" placeholder="🔍 Buscar cancion o artista..." onkeyup="filtrarDashboard()">
-            
             <div class="contenedor-etiquetas" id="filtros-dashboard">
                 <span style="font-size: 14px; margin-top: 3px;">Filtros: </span>
                 <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Alabanza')">Alabanza</div>
@@ -164,23 +162,18 @@
                 <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Lenta')">Lenta</div>
                 <div class="etiqueta" onclick="filtrarPorEtiqueta(this, 'Todas')">Quitar Filtros</div>
             </div>
-
             <div id="lista-canciones-dashboard"></div>
         </div>
 
         <div id="sec-agregar" class="seccion">
             <h2 id="titulo-seccion-agregar">Crear Cancion</h2>
-            
             <label>Titulo</label>
             <input type="text" id="titulo-cancion">
-            
             <label>Artista (Opcional)</label>
             <input type="text" id="artista-cancion">
-
             <label>Velocidad Metronomo (BPM)</label>
-            <input type="number" id="bpm-cancion" placeholder="Ejemplo: 120 (Dejar vacio si no usas)">
-            
-            <label>Etiquetas (Selecciona varias)</label>
+            <input type="number" id="bpm-cancion">
+            <label>Etiquetas</label>
             <div class="contenedor-etiquetas" id="selector-etiquetas">
                 <div class="etiqueta" onclick="toggleEtiqueta(this)">Alabanza</div>
                 <div class="etiqueta" onclick="toggleEtiqueta(this)">Adoracion</div>
@@ -188,166 +181,106 @@
                 <div class="etiqueta" onclick="toggleEtiqueta(this)">Rapida</div>
                 <div class="etiqueta" onclick="toggleEtiqueta(this)">Lenta</div>
             </div>
-
             <label>Tono Original</label>
             <select id="tono-cancion">
                 <option value="">Adivinar (IA)</option>
-                <option value="C">C (Do)</option>
-                <option value="C#">C# / Db</option>
-                <option value="D">D (Re)</option>
-                <option value="D#">D# / Eb</option>
-                <option value="E">E (Mi)</option>
-                <option value="F">F (Fa)</option>
-                <option value="F#">F# / Gb</option>
-                <option value="G">G (Sol)</option>
-                <option value="G#">G# / Ab</option>
-                <option value="A">A (La)</option>
-                <option value="A#">A# / Bb</option>
-                <option value="B">B (Si)</option>
+                <option value="C">C</option><option value="C#">C#</option><option value="D">D</option><option value="D#">D#</option><option value="E">E</option><option value="F">F</option><option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
             </select>
-            
             <div id="partes-cancion"></div>
-            
-            <button onclick="agregarParteFormulario()">+ Agregar estrofa/estribillo</button>
-            <button class="btn-guardar" onclick="guardarCancion()" style="margin-top: 20px;">💾 Guardar</button>
-            <button class="btn-peligro" onclick="cancelarEdicion()" id="btn-cancelar-edicion" style="display: none;">❌ Cancelar Edicion</button>
+            <button onclick="agregarParteFormulario()">+ Agregar parte</button>
+            <button class="btn-guardar" onclick="guardarCancion()">💾 Guardar</button>
+            <button class="btn-peligro" onclick="cancelarEdicion()" id="btn-cancelar-edicion" style="display: none;">❌ Cancelar</button>
         </div>
 
         <div id="sec-setlist" class="seccion">
             <h2>Armar Lista</h2>
             <div id="espacios-setlist"></div>
-            <button onclick="agregarFilaSetlist()">+ Agregar cancion a la lista</button>
-            <br><br>
-            <button class="btn-accion" onclick="iniciarModoPresentacion()">▶️ Iniciar Presentacion</button>
+            <button onclick="agregarFilaSetlist()">+ Agregar a la lista</button>
+            <button class="btn-accion" onclick="iniciarModoPresentacion()">▶️ Iniciar</button>
         </div>
 
         <div id="sec-afinador" class="seccion" style="text-align: center;">
-            <h2>Afinador de Guitarra</h2>
-            <p>Permite el acceso al microfono para afinar.</p>
-            <button class="btn-accion" id="btn-iniciar-afinador" onclick="iniciarAfinador()">Encender Afinador</button>
-            
+            <h2>Afinador</h2>
+            <button class="btn-accion" onclick="iniciarAfinador()">Encender Afinador</button>
             <div id="zona-afinador" style="display: none; margin-top: 40px;">
                 <div style="width: 200px; height: 100px; border-bottom: 2px solid var(--borde); margin: 0 auto; position: relative; overflow: hidden;">
                     <div class="aguja-afinador" id="aguja"></div>
                 </div>
                 <div class="centro-afinador"></div>
                 <div class="nota-afinador" id="nota-detectada">--</div>
-                <p id="indicacion-afinador">Toca una cuerda</p>
             </div>
         </div>
 
     </div>
 
-    <div id="modal-qr" class="seccion fullscreen">
+    <div id="modal-qr" class="seccion fullscreen" style="display: none;">
         <div style="background-color: white; border-radius: 15px; padding: 20px; text-align: center; color: black; max-width: 300px; margin: auto;">
-            <h2 style="color: black; margin-bottom: 10px;">Compartir Cancion</h2>
-            <p style="font-size: 14px; margin-bottom: 20px;">Que tu amigo abra la camara y escanee este codigo.</p>
-            <div id="contenedor-codigo-qr" style="margin: 0 auto; width: 220px; height: 220px;"></div>
-            <p id="qr-error-msg" style="color: red; font-size: 12px; display: none;">La cancion es muy larga para crear un QR.</p>
-            <button class="btn-peligro" style="margin-top: 20px;" onclick="cerrarModalQR()">Volver</button>
+            <h2>Compartir</h2>
+            <div id="contenedor-codigo-qr"></div>
+            <button class="btn-peligro" onclick="cerrarModalQR()">Volver</button>
         </div>
     </div>
 
     <div id="visor-canciones" class="seccion fullscreen" style="display: none;">
         <div class="visor-header">
             <h1 id="visor-titulo">Titulo</h1>
-            <p id="indicador-numero" class="no-imprimir">Vista Previa</p>
             <p id="visor-info-extra"></p>
         </div>
+        <div id="visor-contenido"></div>
         
-        <div id="visor-contenido" style="flex-grow: 1; margin-bottom: 100px;"></div>
-        
-        <div class="barra-herramientas" id="controles-visor">
-            <div style="display: flex; width: 100%; justify-content: space-between; border-bottom: 1px solid var(--borde); padding-bottom: 5px; margin-bottom: 5px;">
+        <div class="barra-herramientas">
+            <div style="display: flex; width: 100%; justify-content: space-between; border-bottom: 1px solid var(--borde); padding-bottom: 5px;">
                 <div class="herramienta-grupo">
-                    <button class="btn-chico" onclick="cancionAnterior()" id="btn-visor-ant">⬅️ Ant</button>
-                    <button class="btn-chico" onclick="cancionSiguiente()" id="btn-visor-sig">Sig ➡️</button>
+                    <button class="btn-chico" onclick="cancionAnterior()">⬅️</button>
+                    <button class="btn-chico" onclick="cancionSiguiente()">➡️</button>
                 </div>
-                
                 <div class="herramienta-grupo">
-                    <button class="btn-chico btn-accion" onclick="abrirModalQR()">📱 QR</button>
-                    <button class="btn-chico btn-accion" onclick="window.print()">🖨️</button>
-                    <button class="btn-chico btn-peligro" onclick="cerrarVisor()">⏹️ Salir</button>
+                    <button class="btn-chico" onclick="ajustarZoom(-2)">A-</button>
+                    <button class="btn-chico" onclick="ajustarZoom(2)">A+</button>
+                    <button class="btn-chico btn-accion" onclick="abrirModalQR()">QR</button>
+                    <button class="btn-chico btn-peligro" onclick="cerrarVisor()">⏹️</button>
                 </div>
             </div>
-
-            <div style="display: flex; width: 100%; justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; width: 100%; justify-content: space-between;">
                 <div class="herramienta-grupo">
-                    <button class="btn-chico" id="btn-metronomo" onclick="toggleMetronomo()" style="background-color: var(--color-alerta); color: black;">⏱️ Play</button>
-                    <span style="font-size: 12px;"><strong id="visor-bpm-actual">--</strong> BPM</span>
+                    <button class="btn-chico" id="btn-metronomo" onclick="toggleMetronomo()">⏱️ Play</button>
+                    <span id="visor-bpm-actual">--</span>
                 </div>
-
                 <div class="herramienta-grupo">
-                    <span style="font-size: 12px;">Tono:</span>
                     <button class="btn-chico" onclick="transponer(-1)">-</button>
-                    <strong id="visor-tono-actual" style="font-size: 14px; width: 25px; text-align: center;">C</strong>
+                    <strong id="visor-tono-actual">C</strong>
                     <button class="btn-chico" onclick="transponer(1)">+</button>
                 </div>
-
                 <div class="herramienta-grupo">
-                    <span style="font-size: 12px;">Scroll:</span>
-                    <button class="btn-chico" onclick="toggleAutoScroll()" id="btn-scroll">▶️</button>
-                    <input type="range" id="velocidad-scroll" min="1" max="10" value="3" style="width: 50px; margin: 0; padding: 0;">
+                    <button class="btn-chico" onclick="toggleAutoScroll()">▶️</button>
+                    <input type="range" id="velocidad-scroll" min="1" max="10" value="3" style="width: 40px;">
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Registrar PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(function() {
-                console.log('PWA Lista para instalar');
-            });
-        }
-
         var bdCanciones = [];
         var listaReproduccion = [];
         var indiceRep = 0;
         var idEditando = -1;
         var pantallaActiva = null; 
+        var zoomBaseAcordes = 26;
+        var zoomBaseLetra = 22;
         
         const notasOrden = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
         var tonoOriginalIndex = 0;
         var tonoActualIndex = 0;
-
         var scrollInterval = null;
         var scrolleando = false;
-
-        // Variables de Metronomo
         var audioCtxMetronomo = null;
         var idIntervalMetronomo = null;
         var metronomoActivo = false;
-
-        // SISTEMA DE IMPORTACION POR QR (Se ejecuta al abrir la pagina)
-        function chequearImportacionQR() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var importData = urlParams.get('importar');
-            
-            if (importData) {
-                try {
-                    // Decodificar Base64 de forma segura
-                    var jsonStr = decodeURIComponent(escape(atob(importData)));
-                    var cancionImportada = JSON.parse(jsonStr);
-                    
-                    if (confirm("Alguien te compartio la cancion: '" + cancionImportada.titulo + "'. ¿Queres guardarla en tu biblioteca?")) {
-                        bdCanciones.push(cancionImportada);
-                        guardarLocal();
-                        alert("¡Cancion importada y guardada con exito!");
-                    }
-                } catch(e) {
-                    alert("Hubo un error al leer el codigo QR. Puede que la cancion sea demasiado larga o el codigo este dañado.");
-                }
-                // Limpiar la URL para que no vuelva a importar si recarga la pagina
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
 
         window.onload = function() {
             var guardado = localStorage.getItem("AcordesAppPro");
             if (guardado) bdCanciones = JSON.parse(guardado);
             actualizarDatalist();
-            chequearImportacionQR(); // Chequeamos si vino de un QR
             cambiarPestana('inicio'); 
         };
 
@@ -359,547 +292,157 @@
                 if(b.getAttribute("data-target") === id) b.classList.add("activa");
                 else b.classList.remove("activa");
             });
-
-            document.querySelectorAll(".seccion").forEach(s => {
-                if(!s.classList.contains("fullscreen")) s.classList.remove("activa");
-            });
+            document.querySelectorAll(".seccion").forEach(s => { if(!s.classList.contains("fullscreen")) s.classList.remove("activa"); });
             document.getElementById("sec-" + id).classList.add("activa");
-            window.scrollTo(0, 0);
-
             cerrarMenu();
-            if(id !== 'afinador') detenerAfinador();
             if(id === 'inicio') dibujarDashboard();
-            if(id === 'setlist' && document.getElementById("espacios-setlist").innerHTML === "") agregarFilaSetlist();
+        }
+
+        // FUNCION DE ZOOM
+        function ajustarZoom(delta) {
+            zoomBaseAcordes += delta;
+            zoomBaseLetra += delta;
+            document.querySelectorAll('.visor-acordes').forEach(el => el.style.fontSize = zoomBaseAcordes + 'px');
+            document.querySelectorAll('.visor-letra').forEach(el => el.style.fontSize = zoomBaseLetra + 'px');
         }
 
         function dibujarDashboard(filtroTag = null) {
             var cont = document.getElementById("lista-canciones-dashboard");
             cont.innerHTML = "";
             var busqueda = document.getElementById("buscador-inicio").value.toLowerCase();
-
             var filtradas = bdCanciones.map((c, index) => ({...c, idReal: index})).filter(c => {
-                var coincideTexto = c.titulo.toLowerCase().includes(busqueda) || (c.artista && c.artista.toLowerCase().includes(busqueda));
-                var coincideTag = filtroTag == null || filtroTag === 'Todas' ? true : (c.etiquetas && c.etiquetas.includes(filtroTag));
-                return coincideTexto && coincideTag;
+                var t = c.titulo.toLowerCase().includes(busqueda) || (c.artista && c.artista.toLowerCase().includes(busqueda));
+                var g = filtroTag == null || filtroTag === 'Todas' ? true : (c.etiquetas && c.etiquetas.includes(filtroTag));
+                return t && g;
             });
-
-            if (filtradas.length === 0) {
-                cont.innerHTML = "<p style='text-align:center;'>No se encontraron canciones.</p>";
-                return;
-            }
-
             filtradas.forEach(c => {
-                var tagsHTML = "";
-                if(c.etiquetas) {
-                    c.etiquetas.forEach(t => tagsHTML += `<span class="etiqueta-mostrar">${t}</span>`);
-                }
-
                 var div = document.createElement("div");
                 div.className = "tarjeta-cancion";
-                div.innerHTML = `
-                    <h3>${c.titulo}</h3>
-                    <p style="font-size: 12px; color: var(--texto-secundario); margin: 0 0 5px 0;">👤 ${c.artista || 'Desconocido'} | 🎵 ${c.tono || '?'} | ⏱️ ${c.bpm || '--'}</p>
-                    <div>${tagsHTML}</div>
-                    <div class="botones-lista">
-                        <button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver / Tocar</button>
-                        <button class="btn-chico btn-alerta" onclick="cargarParaEditar(${c.idReal})" style="background-color: var(--color-alerta); color: black;">Editar</button>
-                        <button class="btn-chico btn-peligro" onclick="borrarCancion(${c.idReal})">Borrar</button>
-                    </div>
-                `;
+                div.innerHTML = `<h3>${c.titulo}</h3><p>👤 ${c.artista || 'Descon'} | 🎵 ${c.tono || '?'} | ⏱️ ${c.bpm || '--'}</p><div class="botones-lista"><button class="btn-chico btn-accion" onclick="verCancionIndividual(${c.idReal})">Ver</button><button class="btn-chico btn-alerta" onclick="cargarParaEditar(${c.idReal})" style="background-color: var(--color-alerta); color: black;">Editar</button><button class="btn-chico btn-peligro" onclick="borrarCancion(${c.idReal})">Borrar</button></div>`;
                 cont.appendChild(div);
             });
         }
 
         function filtrarDashboard() { dibujarDashboard(); }
-        
         function filtrarPorEtiqueta(elem, tag) {
             document.querySelectorAll("#filtros-dashboard .etiqueta").forEach(e => e.classList.remove("seleccionada"));
             elem.classList.add("seleccionada");
             dibujarDashboard(tag);
         }
 
-        function borrarCancion(id) {
-            if(confirm("¿Eliminar cancion para siempre?")) {
-                bdCanciones.splice(id, 1);
-                guardarLocal();
-                dibujarDashboard();
-            }
-        }
-
-        function guardarLocal() {
-            localStorage.setItem("AcordesAppPro", JSON.stringify(bdCanciones));
-            actualizarDatalist();
-        }
-
-        function actualizarDatalist() {
-            var dl = document.getElementById("lista-nombres");
-            dl.innerHTML = "";
-            bdCanciones.forEach(c => dl.innerHTML += `<option value="${c.titulo}">`);
-        }
-
+        function borrarCancion(id) { if(confirm("Borrar?")) { bdCanciones.splice(id, 1); guardarLocal(); dibujarDashboard(); } }
+        function guardarLocal() { localStorage.setItem("AcordesAppPro", JSON.stringify(bdCanciones)); actualizarDatalist(); }
+        function actualizarDatalist() { var dl = document.getElementById("lista-nombres"); dl.innerHTML = ""; bdCanciones.forEach(c => dl.innerHTML += `<option value="${c.titulo}">`); }
         function toggleEtiqueta(elem) { elem.classList.toggle("seleccionada"); }
 
         function agregarParteFormulario(tipo='', acordes='', letra='') {
-            var div = document.createElement("div");
-            div.className = "caja-parte";
-            div.innerHTML = `
-                <div class="cabecera-parte">
-                    <select class="input-tipo" style="margin-bottom: 0; width: 40%;">
-                        <option ${tipo=='Estrofa'?'selected':''}>Estrofa</option>
-                        <option ${tipo=='Estribillo'?'selected':''}>Estribillo</option>
-                        <option ${tipo=='Intro'?'selected':''}>Intro</option>
-                        <option ${tipo=='Solo'?'selected':''}>Solo</option>
-                        <option ${tipo=='Puente'?'selected':''}>Puente</option>
-                    </select>
-                    <div style="display: flex; gap: 5px;">
-                        <button class="btn-mover" onclick="moverParteFormulario(this, -1)">⬆️</button>
-                        <button class="btn-mover" onclick="moverParteFormulario(this, 1)">⬇️</button>
-                        <button class="btn-mover" style="color: var(--color-peligro);" onclick="this.parentElement.parentElement.parentElement.remove()">❌</button>
-                    </div>
-                </div>
-                <input type="text" class="input-acordes" placeholder="Acordes (ej: G D Em C)" value="${acordes}">
-                <textarea class="input-letra" placeholder="Letra...">${letra}</textarea>
-            `;
+            var div = document.createElement("div"); div.className = "caja-parte";
+            div.innerHTML = `<div class="cabecera-parte"><select class="input-tipo" style="width: 40%;"><option ${tipo=='Estrofa'?'selected':''}>Estrofa</option><option ${tipo=='Estribillo'?'selected':''}>Estribillo</option><option ${tipo=='Intro'?'selected':''}>Intro</option></select><div style="display: flex; gap: 5px;"><button class="btn-mover" onclick="moverParteFormulario(this, -1)">⬆️</button><button class="btn-mover" onclick="moverParteFormulario(this, 1)">⬇️</button><button class="btn-mover" onclick="this.parentElement.parentElement.parentElement.remove()">❌</button></div></div><input type="text" class="input-acordes" value="${acordes}"><textarea class="input-letra">${letra}</textarea>`;
             document.getElementById("partes-cancion").appendChild(div);
         }
 
         function moverParteFormulario(boton, direccion) {
-            var caja = boton.closest('.caja-parte');
-            var contenedor = caja.parentElement;
-            
-            if (direccion === -1 && caja.previousElementSibling) {
-                contenedor.insertBefore(caja, caja.previousElementSibling);
-            } else if (direccion === 1 && caja.nextElementSibling) {
-                contenedor.insertBefore(caja.nextElementSibling, caja);
-            }
+            var caja = boton.closest('.caja-parte'); var cont = caja.parentElement;
+            if (direccion === -1 && caja.previousElementSibling) cont.insertBefore(caja, caja.previousElementSibling);
+            else if (direccion === 1 && caja.nextElementSibling) cont.insertBefore(caja.nextElementSibling, caja);
         }
 
         function cargarParaEditar(id) {
-            idEditando = id;
-            var c = bdCanciones[id];
+            idEditando = id; var c = bdCanciones[id];
             document.getElementById("titulo-cancion").value = c.titulo;
             document.getElementById("artista-cancion").value = c.artista || "";
             document.getElementById("bpm-cancion").value = c.bpm || "";
-            
-            var selectTono = document.getElementById("tono-cancion");
-            selectTono.value = ""; 
-            if(c.tono && notasOrden.includes(c.tono)) selectTono.value = c.tono;
-
-            document.querySelectorAll("#selector-etiquetas .etiqueta").forEach(e => {
-                if(c.etiquetas && c.etiquetas.includes(e.innerText)) e.classList.add("seleccionada");
-                else e.classList.remove("seleccionada");
-            });
-
             document.getElementById("partes-cancion").innerHTML = "";
             c.partes.forEach(p => agregarParteFormulario(p.tipo, p.acordes, p.letra));
-
-            document.getElementById("titulo-seccion-agregar").innerText = "Editando Cancion";
             document.getElementById("btn-cancelar-edicion").style.display = "block";
             cambiarPestana('agregar');
         }
 
         function cancelarEdicion() {
-            idEditando = -1;
-            document.getElementById("titulo-cancion").value = "";
-            document.getElementById("artista-cancion").value = "";
-            document.getElementById("bpm-cancion").value = "";
-            document.getElementById("tono-cancion").value = "";
-            document.getElementById("partes-cancion").innerHTML = "";
-            document.querySelectorAll("#selector-etiquetas .etiqueta").forEach(e => e.classList.remove("seleccionada"));
-            document.getElementById("titulo-seccion-agregar").innerText = "Crear Cancion";
+            idEditando = -1; document.getElementById("partes-cancion").innerHTML = "";
             document.getElementById("btn-cancelar-edicion").style.display = "none";
             cambiarPestana('inicio');
         }
 
-        function adivinarTono(partes) {
-            for (let p of partes) {
-                if (p.acordes) {
-                    let primero = p.acordes.split('-')[0].trim();
-                    let limpio = primero.replace(/m|7|maj|sus|dim|aug/gi, '').trim();
-                    if (notasOrden.includes(limpio)) return limpio;
-                }
-            }
-            return "C";
-        }
-
-        function procesarAcordesFormato(texto) {
-            let limpio = texto.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
-            if(!limpio) return "";
-            return limpio.split(' ').map(n => n.charAt(0).toUpperCase() + n.substring(1)).join(' - ');
-        }
-
         function guardarCancion() {
             var titulo = document.getElementById("titulo-cancion").value.trim();
-            if (!titulo) return alert("Falta el titulo");
-
+            if (!titulo) return alert("Ponle titulo");
             var partes = [];
             document.querySelectorAll(".caja-parte").forEach(c => {
-                var ac = procesarAcordesFormato(c.querySelector(".input-acordes").value);
+                var ac = c.querySelector(".input-acordes").value.replace(/-/g, ' ').replace(/\s+/g, ' ').trim().split(' ').map(n => n.charAt(0).toUpperCase() + n.substring(1)).join(' - ');
                 var le = c.querySelector(".input-letra").value;
                 if(ac || le.trim()) partes.push({ tipo: c.querySelector(".input-tipo").value, acordes: ac, letra: le });
             });
-
-            var etiquetas = [];
-            document.querySelectorAll("#selector-etiquetas .etiqueta.seleccionada").forEach(e => etiquetas.push(e.innerText));
-
-            var tono = document.getElementById("tono-cancion").value;
-            if(!tono) tono = adivinarTono(partes);
-            
-            var bpm = document.getElementById("bpm-cancion").value.trim();
-
-            var nueva = { titulo, artista: document.getElementById("artista-cancion").value.trim(), bpm, tono, etiquetas, partes };
-
-            if(idEditando === -1) bdCanciones.push(nueva);
-            else bdCanciones[idEditando] = nueva;
-
-            guardarLocal();
-            cancelarEdicion();
-            alert("Guardado exitosamente");
+            var etiquetas = []; document.querySelectorAll("#selector-etiquetas .etiqueta.seleccionada").forEach(e => etiquetas.push(e.innerText));
+            var nueva = { titulo, artista: document.getElementById("artista-cancion").value.trim(), bpm: document.getElementById("bpm-cancion").value, tono: "C", etiquetas, partes };
+            if(idEditando === -1) bdCanciones.push(nueva); else bdCanciones[idEditando] = nueva;
+            guardarLocal(); cancelarEdicion();
         }
 
         function agregarFilaSetlist() {
-            var div = document.createElement("div");
-            div.className = "fila-armar";
-            div.innerHTML = `
-                <div class="controles-mover-setlist">
-                    <button class="btn-mover-setlist" onclick="moverFilaSetlist(this, -1)">⬆️</button>
-                    <button class="btn-mover-setlist" onclick="moverFilaSetlist(this, 1)">⬇️</button>
-                </div>
-                <input type="text" list="lista-nombres" class="input-setlist" placeholder="Buscar cancion...">
-                <button class="btn-peligro btn-chico" style="padding: 12px;" onclick="this.parentElement.remove()">❌</button>
-            `;
+            var div = document.createElement("div"); div.className = "fila-armar";
+            div.innerHTML = `<div class="controles-mover-setlist"><button class="btn-mover-setlist" onclick="moverFilaSetlist(this, -1)">⬆️</button><button class="btn-mover-setlist" onclick="moverFilaSetlist(this, 1)">⬇️</button></div><input type="text" list="lista-nombres" class="input-setlist"><button class="btn-peligro btn-chico" onclick="this.parentElement.remove()">❌</button>`;
             document.getElementById("espacios-setlist").appendChild(div);
         }
 
         function moverFilaSetlist(boton, direccion) {
-            var fila = boton.closest('.fila-armar');
-            var contenedor = fila.parentElement;
-            
-            if (direccion === -1 && fila.previousElementSibling) {
-                contenedor.insertBefore(fila, fila.previousElementSibling);
-            } else if (direccion === 1 && fila.nextElementSibling) {
-                contenedor.insertBefore(fila.nextElementSibling, fila);
-            }
+            var f = boton.closest('.fila-armar'); var c = f.parentElement;
+            if (direccion === -1 && f.previousElementSibling) c.insertBefore(f, f.previousElementSibling);
+            else if (direccion === 1 && f.nextElementSibling) c.insertBefore(f.nextElementSibling, f);
         }
 
-        async function activarPantalla() {
-            if ('wakeLock' in navigator) {
-                try {
-                    pantallaActiva = await navigator.wakeLock.request('screen');
-                } catch (err) {
-                    console.log('El Wake Lock no se pudo activar:', err);
-                }
-            }
-        }
+        async function activarPantalla() { if ('wakeLock' in navigator) { try { pantallaActiva = await navigator.wakeLock.request('screen'); } catch (err) {} } }
+        function liberarPantalla() { if (pantallaActiva !== null) { pantallaActiva.release().then(() => { pantallaActiva = null; }); } }
 
-        function liberarPantalla() {
-            if (pantallaActiva !== null) {
-                pantallaActiva.release().then(() => {
-                    pantallaActiva = null;
-                });
-            }
-        }
-
-        function verCancionIndividual(id) {
-            listaReproduccion = [bdCanciones[id]];
-            indiceRep = 0;
-            document.getElementById("btn-visor-ant").style.display = "none";
-            document.getElementById("btn-visor-sig").style.display = "none";
-            abrirVisor();
-        }
-
+        function verCancionIndividual(id) { listaReproduccion = [bdCanciones[id]]; indiceRep = 0; abrirVisor(); }
         function iniciarModoPresentacion() {
-            listaReproduccion = [];
-            document.querySelectorAll(".input-setlist").forEach(inp => {
-                var c = bdCanciones.find(x => x.titulo === inp.value.trim());
-                if(c) listaReproduccion.push(c);
-            });
-            if(listaReproduccion.length === 0) return alert("No hay canciones validas");
-            
-            indiceRep = 0;
-            document.getElementById("btn-visor-ant").style.display = "inline-block";
-            document.getElementById("btn-visor-sig").style.display = "inline-block";
-            abrirVisor();
+            listaReproduccion = []; document.querySelectorAll(".input-setlist").forEach(inp => { var c = bdCanciones.find(x => x.titulo === inp.value.trim()); if(c) listaReproduccion.push(c); });
+            if(listaReproduccion.length === 0) return alert("Vacio"); indiceRep = 0; abrirVisor();
         }
 
-        function abrirVisor() {
-            activarPantalla(); 
-            document.getElementById("cabecera-app").style.display = "none";
-            document.getElementById("visor-canciones").style.display = "flex";
-            dibujarVisorActual();
-        }
-
-        function cerrarVisor() {
-            liberarPantalla(); 
-            detenerAutoScroll();
-            detenerMetronomo(); // Apagamos el metronomo si salimos
-            document.getElementById("visor-canciones").style.display = "none";
-            document.getElementById("cabecera-app").style.display = "flex";
-        }
+        function abrirVisor() { activarPantalla(); document.getElementById("cabecera-app").style.display = "none"; document.getElementById("visor-canciones").style.display = "flex"; dibujarVisorActual(); }
+        function cerrarVisor() { liberarPantalla(); detenerAutoScroll(); detenerMetronomo(); document.getElementById("visor-canciones").style.display = "none"; document.getElementById("cabecera-app").style.display = "flex"; }
 
         function dibujarVisorActual() {
-            detenerAutoScroll();
-            detenerMetronomo(); // Apagamos el metronomo al cambiar cancion
-            
-            var c = listaReproduccion[indiceRep];
-            document.getElementById("visor-titulo").innerText = c.titulo;
-            document.getElementById("indicador-numero").innerText = listaReproduccion.length > 1 ? `CANCION ${indiceRep + 1} DE ${listaReproduccion.length}` : 'Vista Previa';
-            document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Desconocido'}`;
-            
-            // Cargar BPM de esta cancion
+            var c = listaReproduccion[indiceRep]; document.getElementById("visor-titulo").innerText = c.titulo;
+            document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Descon'}`;
             document.getElementById("visor-bpm-actual").innerText = c.bpm || '--';
-            
-            tonoOriginalIndex = notasOrden.indexOf(c.tono);
-            if(tonoOriginalIndex === -1) tonoOriginalIndex = 0;
-            tonoActualIndex = tonoOriginalIndex;
+            tonoActualIndex = notasOrden.indexOf(c.tono) !== -1 ? notasOrden.indexOf(c.tono) : 0;
             document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
-
             var html = "";
-            c.partes.forEach(p => {
-                html += `<div class="visor-bloque"><div class="visor-tipo">${p.tipo}</div>`;
-                if(p.acordes) html += `<div class="visor-acordes" data-original="${p.acordes}">${p.acordes}</div>`;
-                if(p.letra) html += `<div class="visor-letra">${p.letra}</div>`;
-                html += `</div>`;
-            });
+            c.partes.forEach(p => { html += `<div class="visor-bloque"><div class="visor-tipo">${p.tipo}</div><div class="visor-acordes" data-original="${p.acordes}" style="font-size: ${zoomBaseAcordes}px">${p.acordes}</div><div class="visor-letra" style="font-size: ${zoomBaseLetra}px">${p.letra}</div></div>`; });
             document.getElementById("visor-contenido").innerHTML = html;
-            document.getElementById("visor-canciones").scrollTop = 0;
         }
 
         function cancionAnterior() { if(indiceRep > 0) { indiceRep--; dibujarVisorActual(); } }
-        function cancionSiguiente() {
-            if(indiceRep < listaReproduccion.length - 1) { indiceRep++; dibujarVisorActual(); }
-            else { alert("Fin de la lista"); cerrarVisor(); }
-        }
+        function cancionSiguiente() { if(indiceRep < listaReproduccion.length - 1) { indiceRep++; dibujarVisorActual(); } }
 
         function transponer(direccion) {
-            tonoActualIndex = (tonoActualIndex + direccion + 12) % 12;
-            document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
-            
-            var diff = (tonoActualIndex - tonoOriginalIndex + 12) % 12;
-
+            tonoActualIndex = (tonoActualIndex + direccion + 12) % 12; document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
             document.querySelectorAll(".visor-acordes").forEach(div => {
-                var original = div.getAttribute("data-original");
-                var nuevo = original.replace(/[CDEFGAB]#?/g, match => {
-                    var idx = notasOrden.indexOf(match);
-                    if(idx === -1) return match;
-                    return notasOrden[(idx + diff) % 12];
-                });
-                div.innerText = nuevo;
+                div.innerText = div.getAttribute("data-original").replace(/[CDEFGAB]#?/g, match => notasOrden[(notasOrden.indexOf(match) + (tonoActualIndex - notasOrden.indexOf(listaReproduccion[indiceRep].tono) + 12) % 12) % 12]);
             });
         }
 
-        // --- METRONOMO ---
-        function reproducirClickMetronomo(frecuencia) {
-            if (!audioCtxMetronomo) {
-                audioCtxMetronomo = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtxMetronomo.state === 'suspended') {
-                audioCtxMetronomo.resume();
-            }
-            var osc = audioCtxMetronomo.createOscillator();
-            var gain = audioCtxMetronomo.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtxMetronomo.destination);
-            osc.frequency.value = frecuencia;
-            osc.type = "sine";
-            // Sonido corto tipo "tic"
-            gain.gain.setValueAtTime(1, audioCtxMetronomo.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtxMetronomo.currentTime + 0.05);
-            osc.start(audioCtxMetronomo.currentTime);
-            osc.stop(audioCtxMetronomo.currentTime + 0.05);
-        }
-
         function toggleMetronomo() {
-            var bpmText = document.getElementById("visor-bpm-actual").innerText;
-            var bpm = parseInt(bpmText);
-            
-            if (isNaN(bpm) || bpm <= 0) {
-                alert("Esta cancion no tiene un BPM (Velocidad) configurado. Editala y agregale uno.");
-                return;
-            }
-
-            if (metronomoActivo) {
-                detenerMetronomo();
-            } else {
-                metronomoActivo = true;
-                document.getElementById("btn-metronomo").innerText = "⏹️ Stop";
-                document.getElementById("btn-metronomo").style.backgroundColor = "var(--color-peligro)";
-                
-                var intervaloMs = 60000 / bpm;
-                
-                // Reproducimos el primero al instante
-                reproducirClickMetronomo(800); 
-                
+            var bpm = parseInt(document.getElementById("visor-bpm-actual").innerText); if (isNaN(bpm)) return;
+            if (metronomoActivo) { clearInterval(idIntervalMetronomo); metronomoActivo = false; }
+            else {
+                metronomoActivo = true; if (!audioCtxMetronomo) audioCtxMetronomo = new (window.AudioContext || window.webkitAudioContext)();
                 idIntervalMetronomo = setInterval(() => {
-                    reproducirClickMetronomo(800);
-                }, intervaloMs);
+                    var o = audioCtxMetronomo.createOscillator(); var g = audioCtxMetronomo.createGain(); o.connect(g); g.connect(audioCtxMetronomo.destination);
+                    o.frequency.value = 800; g.gain.exponentialRampToValueAtTime(0.001, audioCtxMetronomo.currentTime + 0.05); o.start(); o.stop(audioCtxMetronomo.currentTime + 0.05);
+                }, 60000 / bpm);
             }
         }
 
-        function detenerMetronomo() {
-            if (idIntervalMetronomo) clearInterval(idIntervalMetronomo);
-            metronomoActivo = false;
-            document.getElementById("btn-metronomo").innerText = "⏱️ Play";
-            document.getElementById("btn-metronomo").style.backgroundColor = "var(--color-alerta)";
-        }
-
-        // --- GENERADOR DE CODIGO QR ---
         function abrirModalQR() {
-            var cancion = listaReproduccion[indiceRep];
-            var contenedorQR = document.getElementById("contenedor-codigo-qr");
-            var errorMsg = document.getElementById("qr-error-msg");
-            
-            contenedorQR.innerHTML = ""; // Limpiamos QR anterior
-            errorMsg.style.display = "none";
+            var c = JSON.stringify(listaReproduccion[indiceRep]);
+            document.getElementById("contenedor-codigo-qr").innerHTML = "";
+            new QRCode(document.getElementById("contenedor-codigo-qr"), { text: window.location.origin + window.location.pathname + "?importar=" + btoa(unescape(encodeURIComponent(c))), width: 220, height: 220 });
             document.getElementById("modal-qr").style.display = "flex";
-
-            try {
-                // Convertir la cancion a texto, luego a Base64
-                var jsonString = JSON.stringify(cancion);
-                var base64String = btoa(unescape(encodeURIComponent(jsonString)));
-                
-                // Armamos un link hacia nuestra propia pagina pero pasandole el dato
-                var urlActual = window.location.origin + window.location.pathname;
-                var urlCompartir = urlActual + "?importar=" + base64String;
-
-                // Generamos el dibujo del QR
-                new QRCode(contenedorQR, {
-                    text: urlCompartir,
-                    width: 220,
-                    height: 220,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.L
-                });
-            } catch (e) {
-                // Si la cancion tiene muchisima letra, el QR se va a romper por limite de tamaño
-                errorMsg.style.display = "block";
-            }
         }
-
-        function cerrarModalQR() {
-            document.getElementById("modal-qr").style.display = "none";
-        }
-
-        // --- AUTO SCROLL ---
-        function toggleAutoScroll() {
-            var btn = document.getElementById("btn-scroll");
-            var visor = document.getElementById("visor-canciones");
-            
-            if(scrolleando) {
-                detenerAutoScroll();
-            } else {
-                scrolleando = true;
-                btn.innerText = "⏸️";
-                var velocidadStr = document.getElementById("velocidad-scroll").value;
-                var tiempo = 110 - (parseInt(velocidadStr) * 10); 
-                
-                scrollInterval = setInterval(() => {
-                    visor.scrollBy(0, 1);
-                    if (visor.scrollTop + visor.clientHeight >= visor.scrollHeight - 5) detenerAutoScroll();
-                }, tiempo);
-            }
-        }
-        function detenerAutoScroll() {
-            clearInterval(scrollInterval);
-            scrolleando = false;
-            document.getElementById("btn-scroll").innerText = "▶️";
-        }
-        document.getElementById("velocidad-scroll").onchange = function() {
-            if(scrolleando) { detenerAutoScroll(); toggleAutoScroll(); }
-        };
-
-        // --- AFINADOR ---
-        var audioCtx;
-        var analyser;
-        var frameIdAfinador;
-
-        function iniciarAfinador() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    analyser = audioCtx.createAnalyser();
-                    analyser.fftSize = 2048;
-                    var source = audioCtx.createMediaStreamSource(stream);
-                    source.connect(analyser);
-                    
-                    document.getElementById("btn-iniciar-afinador").style.display = "none";
-                    document.getElementById("zona-afinador").style.display = "block";
-                    actualizarAfinador();
-                }).catch(function(err) {
-                    alert("Error al acceder al microfono: " + err);
-                });
-            } else {
-                alert("Tu navegador no soporta grabacion de audio.");
-            }
-        }
-
-        function detenerAfinador() {
-            if(frameIdAfinador) cancelAnimationFrame(frameIdAfinador);
-            if(audioCtx) audioCtx.close();
-            document.getElementById("btn-iniciar-afinador").style.display = "block";
-            document.getElementById("zona-afinador").style.display = "none";
-        }
-
-        const frecuenciasCuerdas = [
-            { nota: "E (1ra)", freq: 329.63 }, { nota: "B (2da)", freq: 246.94 }, { nota: "G (3ra)", freq: 196.00 },
-            { nota: "D (4ta)", freq: 146.83 }, { nota: "A (5ta)", freq: 110.00 }, { nota: "E (6ta)", freq: 82.41 }
-        ];
-
-        function actualizarAfinador() {
-            var buffer = new Float32Array(analyser.fftSize);
-            analyser.getFloatTimeDomainData(buffer);
-            var freq = autoCorrelacion(buffer, audioCtx.sampleRate);
-
-            if (freq !== -1) {
-                let cuerdaCercana = frecuenciasCuerdas[0];
-                let minimaDif = Math.abs(freq - cuerdaCercana.freq);
-                
-                for(let i=1; i<frecuenciasCuerdas.length; i++) {
-                    let dif = Math.abs(freq - frecuenciasCuerdas[i].freq);
-                    if(dif < minimaDif) { minimaDif = dif; cuerdaCercana = frecuenciasCuerdas[i]; }
-                }
-
-                document.getElementById("nota-detectada").innerText = cuerdaCercana.nota;
-                
-                var cents = 1200 * Math.log2(freq / cuerdaCercana.freq);
-                var rotacion = Math.max(-45, Math.min(45, (cents / 50) * 45)); 
-                document.getElementById("aguja").style.transform = `rotate(${rotacion}deg)`;
-
-                if(Math.abs(cents) < 5) {
-                    document.getElementById("aguja").style.backgroundColor = "var(--color-acorde)";
-                    document.getElementById("indicacion-afinador").innerText = "Afinada";
-                } else if (cents < 0) {
-                    document.getElementById("aguja").style.backgroundColor = "var(--color-alerta)";
-                    document.getElementById("indicacion-afinador").innerText = "Sube la tension";
-                } else {
-                    document.getElementById("aguja").style.backgroundColor = "var(--color-peligro)";
-                    document.getElementById("indicacion-afinador").innerText = "Baja la tension";
-                }
-            }
-            frameIdAfinador = requestAnimationFrame(actualizarAfinador);
-        }
-
-        function autoCorrelacion(buf, sampleRate) {
-            var SIZE = buf.length; var rms = 0;
-            for (var i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
-            rms = Math.sqrt(rms / SIZE);
-            if (rms < 0.01) return -1;
-
-            var r1 = 0, r2 = SIZE - 1, thres = 0.2;
-            for (var i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
-            for (var i = 1; i < SIZE / 2; i++) if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
-            
-            buf = buf.slice(r1, r2); SIZE = buf.length;
-            var c = new Array(SIZE).fill(0);
-            for (var i = 0; i < SIZE; i++) for (var j = 0; j < SIZE - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
-            
-            var d = 0; while (c[d] > c[d + 1]) d++;
-            var maxval = -1, maxpos = -1;
-            for (var i = d; i < SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
-            var T0 = maxpos;
-            return sampleRate / T0;
-        }
+        function cerrarModalQR() { document.getElementById("modal-qr").style.display = "none"; }
     </script>
 </body>
 </html>
