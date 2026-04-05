@@ -21,7 +21,6 @@
             --color-peligro: #ff5252;
             --color-alerta: #ffb300;
             --borde: #333333;
-            /* Variable dinamica para el zoom */
             --factor-zoom: 1;
         }
 
@@ -104,14 +103,35 @@
         .visor-bloque { margin-bottom: 25px; }
         .visor-tipo { font-size: 14px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 5px; }
         
-        /* Textos fluidos e inteligentes */
+        /* Textos fluidos y Apilado de numeros */
         .visor-acordes { 
             font-family: monospace; 
             font-size: calc(clamp(20px, 5vw, 34px) * var(--factor-zoom)); 
             color: var(--color-acorde); 
             font-weight: bold; 
             margin-bottom: 5px; 
+            line-height: 1.6;
         }
+
+        .acorde-apilado {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: top;
+            line-height: 1;
+            margin: 0 2px;
+        }
+        .acorde-num {
+            font-size: 0.7em;
+            color: var(--texto-principal);
+            margin-top: 2px;
+        }
+        .separador-acorde {
+            display: inline-block;
+            vertical-align: top;
+            margin: 0 4px;
+        }
+
         .visor-letra { 
             font-size: calc(clamp(16px, 4vw, 26px) * var(--factor-zoom)); 
             line-height: 1.5; 
@@ -138,6 +158,7 @@
             #visor-canciones, #visor-canciones * { visibility: visible; }
             #visor-canciones { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; margin: 0 !important; background-color: white !important; color: black !important; display: block !important; }
             .visor-acordes { color: black !important; text-shadow: none !important; font-weight: bold !important; font-size: 16pt !important;}
+            .acorde-num { color: black !important; }
             .visor-letra { color: black !important; font-size: 14pt !important;}
             .visor-tipo { color: #555 !important; font-size: 10pt !important; font-weight: bold;}
             .visor-header { border-bottom: 2px solid black !important; margin-bottom: 20px !important; text-align: left !important;}
@@ -270,7 +291,7 @@
                     <button class="btn-chico" onclick="transponer(1)">+</button>
                 </div>
                 <div class="herramienta-grupo">
-                    <button class="btn-chico" onclick="toggleAutoScroll()">▶️</button>
+                    <button class="btn-chico" id="btn-scroll" onclick="toggleAutoScroll()">▶️</button>
                     <input type="range" id="velocidad-scroll" min="1" max="10" value="3" style="width: 40px;">
                 </div>
             </div>
@@ -284,7 +305,6 @@
         var idEditando = -1;
         var pantallaActiva = null; 
         
-        // Variable central para el nuevo sistema de zoom
         var factorZoom = 1;
         
         const notasOrden = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -333,10 +353,8 @@
             if(id === 'inicio') dibujarDashboard();
         }
 
-        // FUNCION DE ZOOM MEJORADA (Usa variables de CSS para que sea fluido en cualquier pantalla)
         function ajustarZoom(delta) {
             factorZoom += delta;
-            // Ponemos limites para que la letra no desaparezca ni sea infinitamente grande
             if(factorZoom < 0.5) factorZoom = 0.5;
             if(factorZoom > 3.0) factorZoom = 3.0;
             document.documentElement.style.setProperty('--factor-zoom', factorZoom);
@@ -373,7 +391,7 @@
 
         function agregarParteFormulario(tipo='', acordes='', letra='') {
             var div = document.createElement("div"); div.className = "caja-parte";
-            div.innerHTML = `<div class="cabecera-parte"><select class="input-tipo" style="width: 40%;"><option ${tipo=='Estrofa'?'selected':''}>Estrofa</option><option ${tipo=='Estribillo'?'selected':''}>Estribillo</option><option ${tipo=='Intro'?'selected':''}>Intro</option></select><div style="display: flex; gap: 5px;"><button class="btn-mover" onclick="moverParteFormulario(this, -1)">⬆️</button><button class="btn-mover" onclick="moverParteFormulario(this, 1)">⬇️</button><button class="btn-mover" onclick="this.parentElement.parentElement.parentElement.remove()">❌</button></div></div><input type="text" class="input-acordes" value="${acordes}"><textarea class="input-letra">${letra}</textarea>`;
+            div.innerHTML = `<div class="cabecera-parte"><select class="input-tipo" style="width: 40%;"><option ${tipo=='Estrofa'?'selected':''}>Estrofa</option><option ${tipo=='Estribillo'?'selected':''}>Estribillo</option><option ${tipo=='Intro'?'selected':''}>Intro</option><option ${tipo=='Solo'?'selected':''}>Solo</option><option ${tipo=='Puente'?'selected':''}>Puente</option></select><div style="display: flex; gap: 5px;"><button class="btn-mover" onclick="moverParteFormulario(this, -1)">⬆️</button><button class="btn-mover" onclick="moverParteFormulario(this, 1)">⬇️</button><button class="btn-mover" onclick="this.parentElement.parentElement.parentElement.remove()">❌</button></div></div><textarea class="input-acordes" placeholder="Acordes (ej: C2 Am \n F G)" style="height: 60px; font-family: monospace;">${acordes}</textarea><textarea class="input-letra" placeholder="Letra...">${letra}</textarea>`;
             document.getElementById("partes-cancion").appendChild(div);
         }
 
@@ -400,12 +418,23 @@
             cambiarPestana('inicio');
         }
 
+        function procesarAcordesFormato(texto) {
+            let lineas = texto.split('\n');
+            let lineasProcesadas = lineas.map(linea => {
+                let limpio = linea.replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+                if(!limpio) return "";
+                return limpio.split(' ').map(n => n.charAt(0).toUpperCase() + n.substring(1)).join(' - ');
+            });
+            return lineasProcesadas.filter(l => l !== "").join('\n');
+        }
+
         function guardarCancion() {
             var titulo = document.getElementById("titulo-cancion").value.trim();
             if (!titulo) return alert("Ponle titulo");
             var partes = [];
             document.querySelectorAll(".caja-parte").forEach(c => {
-                var ac = c.querySelector(".input-acordes").value.replace(/-/g, ' ').replace(/\s+/g, ' ').trim().split(' ').map(n => n.charAt(0).toUpperCase() + n.substring(1)).join(' - ');
+                var acRaw = c.querySelector(".input-acordes").value;
+                var ac = procesarAcordesFormato(acRaw);
                 var le = c.querySelector(".input-letra").value;
                 if(ac || le.trim()) partes.push({ tipo: c.querySelector(".input-tipo").value, acordes: ac, letra: le });
             });
@@ -437,9 +466,35 @@
         }
 
         function abrirVisor() { activarPantalla(); document.getElementById("cabecera-app").style.display = "none"; document.getElementById("visor-canciones").style.display = "flex"; dibujarVisorActual(); }
-        function cerrarVisor() { liberarPantalla(); detenerAutoScroll(); detenerMetronomo(); document.getElementById("visor-canciones").style.display = "none"; document.getElementById("cabecera-app").style.display = "flex"; }
+        
+        function cerrarVisor() { 
+            liberarPantalla(); 
+            detenerAutoScroll(); 
+            detenerMetronomo(); 
+            document.getElementById("visor-canciones").style.display = "none"; 
+            document.getElementById("cabecera-app").style.display = "flex"; 
+        }
+
+        function renderizarAcordesHTML(texto) {
+            var lineas = texto.split('\n');
+            var htmlLineas = lineas.map(linea => {
+                var partes = linea.split(' - ');
+                var htmlPartes = partes.map(p => {
+                    var trimP = p.trim();
+                    // Busca todo lo que termina en numero y apila ese numero abajo
+                    var match = trimP.match(/^(.+?)(\d+)$/);
+                    if(match) {
+                        return `<span class="acorde-apilado"><span>${match[1]}</span><span class="acorde-num">${match[2]}</span></span>`;
+                    }
+                    return trimP;
+                });
+                return htmlPartes.join(' <span class="separador-acorde">-</span> ');
+            });
+            return htmlLineas.join('<br>');
+        }
 
         function dibujarVisorActual() {
+            detenerMetronomo();
             var c = listaReproduccion[indiceRep]; document.getElementById("visor-titulo").innerText = c.titulo;
             document.getElementById("visor-info-extra").innerText = `👤 ${c.artista||'Descon'} | ⏱️ ${c.bpm||'--'}`;
             document.getElementById("visor-bpm-actual").innerText = c.bpm || '--';
@@ -449,7 +504,7 @@
             var html = "";
             c.partes.forEach(p => { 
                 html += `<div class="visor-bloque"><div class="visor-tipo">${p.tipo}</div>`;
-                if (p.acordes) html += `<div class="visor-acordes" data-original="${p.acordes}">${p.acordes}</div>`;
+                if (p.acordes) html += `<div class="visor-acordes" data-original="${p.acordes}">${renderizarAcordesHTML(p.acordes)}</div>`;
                 if (p.letra) html += `<div class="visor-letra">${p.letra}</div>`;
                 html += `</div>`;
             });
@@ -460,17 +515,53 @@
         function cancionSiguiente() { if(indiceRep < listaReproduccion.length - 1) { indiceRep++; dibujarVisorActual(); } }
 
         function transponer(direccion) {
-            tonoActualIndex = (tonoActualIndex + direccion + 12) % 12; document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
+            tonoActualIndex = (tonoActualIndex + direccion + 12) % 12; 
+            document.getElementById("visor-tono-actual").innerText = notasOrden[tonoActualIndex];
+            
+            var diff = (tonoActualIndex - tonoOriginalIndex + 12) % 12;
+
             document.querySelectorAll(".visor-acordes").forEach(div => {
-                div.innerText = div.getAttribute("data-original").replace(/[CDEFGAB]#?/g, match => notasOrden[(notasOrden.indexOf(match) + (tonoActualIndex - notasOrden.indexOf(listaReproduccion[indiceRep].tono) + 12) % 12) % 12]);
+                var original = div.getAttribute("data-original");
+                
+                var nuevo = original.split('\n').map(linea => {
+                    return linea.split(' - ').map(acorde => {
+                        return acorde.replace(/^([CDEFGAB]#?)/, match => {
+                            var idx = notasOrden.indexOf(match);
+                            if(idx === -1) return match;
+                            return notasOrden[(idx + diff) % 12];
+                        });
+                    }).join(' - ');
+                }).join('\n');
+
+                div.innerHTML = renderizarAcordesHTML(nuevo);
             });
         }
 
+        function detenerMetronomo() {
+            if (idIntervalMetronomo) clearInterval(idIntervalMetronomo);
+            metronomoActivo = false;
+            var btn = document.getElementById("btn-metronomo");
+            if(btn) btn.innerText = "⏱️ Play";
+        }
+
         function toggleMetronomo() {
-            var bpm = parseInt(document.getElementById("visor-bpm-actual").innerText); if (isNaN(bpm)) return;
-            if (metronomoActivo) { clearInterval(idIntervalMetronomo); metronomoActivo = false; }
-            else {
-                metronomoActivo = true; if (!audioCtxMetronomo) audioCtxMetronomo = new (window.AudioContext || window.webkitAudioContext)();
+            var bpmText = document.getElementById("visor-bpm-actual").innerText;
+            var bpm = parseInt(bpmText);
+            if (isNaN(bpm) || bpm <= 0) {
+                alert("Esta cancion no tiene un BPM (Velocidad) configurado. Editala y agregale uno.");
+                return;
+            }
+
+            if (metronomoActivo) {
+                detenerMetronomo();
+            } else {
+                metronomoActivo = true;
+                document.getElementById("btn-metronomo").innerText = "⏹️ Stop";
+                if (!audioCtxMetronomo) audioCtxMetronomo = new (window.AudioContext || window.webkitAudioContext)();
+                
+                var oFirst = audioCtxMetronomo.createOscillator(); var gFirst = audioCtxMetronomo.createGain(); oFirst.connect(gFirst); gFirst.connect(audioCtxMetronomo.destination);
+                oFirst.frequency.value = 800; gFirst.gain.exponentialRampToValueAtTime(0.001, audioCtxMetronomo.currentTime + 0.05); oFirst.start(); oFirst.stop(audioCtxMetronomo.currentTime + 0.05);
+                
                 idIntervalMetronomo = setInterval(() => {
                     var o = audioCtxMetronomo.createOscillator(); var g = audioCtxMetronomo.createGain(); o.connect(g); g.connect(audioCtxMetronomo.destination);
                     o.frequency.value = 800; g.gain.exponentialRampToValueAtTime(0.001, audioCtxMetronomo.currentTime + 0.05); o.start(); o.stop(audioCtxMetronomo.currentTime + 0.05);
@@ -504,8 +595,96 @@
                 }, tiempo);
             }
         }
-        function detenerAutoScroll() { clearInterval(scrollInterval); scrolleando = false; document.getElementById("btn-scroll").innerText = "▶️"; }
+        function detenerAutoScroll() { 
+            clearInterval(scrollInterval); 
+            scrolleando = false; 
+            var btn = document.getElementById("btn-scroll");
+            if(btn) btn.innerText = "▶️"; 
+        }
         document.getElementById("velocidad-scroll").onchange = function() { if(scrolleando) { detenerAutoScroll(); toggleAutoScroll(); } };
+
+        // Afinador
+        var audioCtx;
+        var analyser;
+        var frameIdAfinador;
+
+        function iniciarAfinador() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({audio: true}).then(function(stream) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 2048;
+                    var source = audioCtx.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    
+                    document.getElementById("btn-iniciar-afinador").style.display = "none";
+                    document.getElementById("zona-afinador").style.display = "block";
+                    actualizarAfinador();
+                }).catch(function(err) { alert("Error al acceder al microfono: " + err); });
+            } else { alert("No soportado."); }
+        }
+
+        function detenerAfinador() {
+            if(frameIdAfinador) cancelAnimationFrame(frameIdAfinador);
+            if(audioCtx) audioCtx.close();
+            document.getElementById("btn-iniciar-afinador").style.display = "block";
+            document.getElementById("zona-afinador").style.display = "none";
+        }
+
+        const frecuenciasCuerdas = [
+            { nota: "E (1ra)", freq: 329.63 }, { nota: "B (2da)", freq: 246.94 }, { nota: "G (3ra)", freq: 196.00 },
+            { nota: "D (4ta)", freq: 146.83 }, { nota: "A (5ta)", freq: 110.00 }, { nota: "E (6ta)", freq: 82.41 }
+        ];
+
+        function actualizarAfinador() {
+            var buffer = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(buffer);
+            var freq = autoCorrelacion(buffer, audioCtx.sampleRate);
+
+            if (freq !== -1) {
+                let cuerdaCercana = frecuenciasCuerdas[0];
+                let minimaDif = Math.abs(freq - cuerdaCercana.freq);
+                for(let i=1; i<frecuenciasCuerdas.length; i++) {
+                    let dif = Math.abs(freq - frecuenciasCuerdas[i].freq);
+                    if(dif < minimaDif) { minimaDif = dif; cuerdaCercana = frecuenciasCuerdas[i]; }
+                }
+
+                document.getElementById("nota-detectada").innerText = cuerdaCercana.nota;
+                var cents = 1200 * Math.log2(freq / cuerdaCercana.freq);
+                var rotacion = Math.max(-45, Math.min(45, (cents / 50) * 45)); 
+                document.getElementById("aguja").style.transform = `rotate(${rotacion}deg)`;
+
+                if(Math.abs(cents) < 5) {
+                    document.getElementById("aguja").style.backgroundColor = "var(--color-acorde)";
+                } else if (cents < 0) {
+                    document.getElementById("aguja").style.backgroundColor = "var(--color-alerta)";
+                } else {
+                    document.getElementById("aguja").style.backgroundColor = "var(--color-peligro)";
+                }
+            }
+            frameIdAfinador = requestAnimationFrame(actualizarAfinador);
+        }
+
+        function autoCorrelacion(buf, sampleRate) {
+            var SIZE = buf.length; var rms = 0;
+            for (var i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+            rms = Math.sqrt(rms / SIZE);
+            if (rms < 0.01) return -1;
+
+            var r1 = 0, r2 = SIZE - 1, thres = 0.2;
+            for (var i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            for (var i = 1; i < SIZE / 2; i++) if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+            
+            buf = buf.slice(r1, r2); SIZE = buf.length;
+            var c = new Array(SIZE).fill(0);
+            for (var i = 0; i < SIZE; i++) for (var j = 0; j < SIZE - i; j++) c[i] = c[i] + buf[j] * buf[j + i];
+            
+            var d = 0; while (c[d] > c[d + 1]) d++;
+            var maxval = -1, maxpos = -1;
+            for (var i = d; i < SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
+            var T0 = maxpos;
+            return sampleRate / T0;
+        }
     </script>
 </body>
 </html>
